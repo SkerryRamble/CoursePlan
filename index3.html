@@ -241,7 +241,8 @@
 			//GET data from api
 			var request = new XMLHttpRequest();
 			//request.open('GET', 'https://github.com/SkerryRamble/CoursePlan/yearcourses.json' + display_year, true);
-			request.open('GET', 'https://skerryramble.github.com/CoursePlan/yearcourses.json', true);
+			request.open('GET', 'https://skerryramble.github.io/CoursePlan/yearcourses.json', true);
+
 			request.onload = function() {
 				if (this.status >= 200 && this.status < 400) {
 					// Success!
