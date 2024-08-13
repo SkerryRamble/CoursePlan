@@ -9,8 +9,7 @@
 	background-color:steelblue;
 	text-align:center;
 	cursor:pointer;
-	white-space:nowrap;
-	-webkit-touch-callout:none;
+	white-space:nowrap;	
 	-webkit-user-select:none;
 	-khtml-user-select:none;
 	-moz-user-select:none;
@@ -30,8 +29,7 @@
 	background-color:darkorange;
 	text-align:center;
 	cursor:pointer;
-	white-space:nowrap;
-	-webkit-touch-callout:none;
+	white-space:nowrap;	
 	-webkit-user-select:none;
 	-khtml-user-select:none;
 	-moz-user-select:none;
@@ -168,7 +166,7 @@ h1{font-size:36px}h2{font-size:30px}h3{font-size:24px}h4{font-size:20px}h5{font-
 
 .cp-container{padding:0.1em 16px}
 
-.cp-btn,.cp-btn-floating,.cp-btn-floating-large,.cp-closenav,.cp-opennav,.cp-btn-block,.cp-button{-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
+.cp-btn,.cp-btn-floating,.cp-btn-floating-large,.cp-closenav,.cp-opennav,.cp-btn-block,.cp-button{-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
 
 
 
