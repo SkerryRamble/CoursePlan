@@ -48,7 +48,7 @@
 		},
 		
 		DataGot: function(){
-		console.log("f");
+		console.log("Inside DataGot");
 			//due to possible network delays we need to add a listener event to the XHR so we don't try to process it until it has finished transferring
 			//TODO: There's a new way to to this. Act on 200
 			Engine.YearData = JSON.parse(this.responseText);
@@ -63,8 +63,8 @@
 			var screen_width = 91;
 			var number_of_quarters = 4;
 			var stream_height = (calendar_height - (4 * calendar_gap))/ number_of_quarters / number_of_streams;	
-			console.log(data);
-			console.log(Engine.YearData);
+			//console.log(data);
+			//console.log(Engine.YearData);
 			for(slot in data){		
 			
 			//This is being called way too many times...???TODO
@@ -74,13 +74,15 @@
 					console.log(data[slot].id);
 					var date_start = new Date(data[slot].date_start);
 					var date_end = new Date(data[slot].date_end);	//need to take date_end+1
-					var day_diff = new Date(date_end - date_start);
+					//var day_diff = new Date(date_end - date_start);
+					var day_diff = date_end - date_start;	//dunno why this way works
 					var slot_width = Math.floor(day_diff/one_day) + 1;
 					var level = data[slot].stream-1;	//not so simple, stream = lecture_room_id which is not linear; we need to assign these accurately
 					if (level > 6) {level = 4;}	//account for odd indexing from sql of lecture_room_id table					
 					
-					var jan1 = new Date('1 January 2017');
-					day_diff = new Date(date_start - jan1);
+					var jan1 = new Date('1 January 2022');
+					//day_diff = new Date(date_start - jan1);
+					day_diff = date_start - jan1;
 					var slot_x = Math.floor(day_diff/one_day);
 					var slot_y = ((number_of_streams-1) * stream_height);				
 					
@@ -190,6 +192,7 @@
 	}
 	
 	function get_year(){
+		console.log("inside get_year");
 		document.getElementById('year').innerHTML = '';
 		
 		$.ajax ({
@@ -206,6 +209,7 @@
 	}
 	
 	function draw_year(data){	
+		console.log("inside draw_year");
 		//get how many and which streams are visible, jumping out if none are
 		var stream_1 = document.getElementById('stream1').checked;
 		var stream_2 = document.getElementById('stream2').checked;
@@ -246,13 +250,15 @@
 				if (data[slot].id != null){
 					var date_start = new Date(data[slot].date_start);
 					var date_end = new Date(data[slot].date_end);	//need to take date_end+1
-					var day_diff = new Date(date_end - date_start);
+					//var day_diff = new Date(date_end - date_start);
+					var day_diff = date_end - date_start;	//dunno why this way works
 					var slot_width = Math.floor(day_diff/one_day) + 1;
 					var level = data[slot].stream-1;	//not so simple, stream = lecture_room_id which is not linear; we need to assign these accurately
 					if (level > 6) {level = 4;}	//account for odd indexing from sql of lecture_room_id table					
 					
 					var jan1 = new Date('1 January ' + display_year);
-					day_diff = new Date(date_start - jan1);
+					//day_diff = new Date(date_start - jan1);
+					day_diff = date_start - jan1;
 					var slot_x = Math.floor(day_diff/one_day);
 					var slot_y = ((number_of_streams-1) * stream_height);				
 					
@@ -327,7 +333,7 @@
 	function draw_calendar(number_of_streams, calendar_height){
 		//populate the month/week/date lines with their content
 		//need to calculate the '1st' week of the year, week_position_1 can never have wed=5th jan which constrains our choice
-		
+		console.log("inside draw_calendar");
 		var x_pos_increment = 24;
 		var calendar = document.getElementById('calendar');
 		var inner_calendar = '';
@@ -349,6 +355,7 @@
 	
 	
 	var myFunction = function() {
+	console.log("Inside myfunction");
 		var attribute = this.getAttribute("data-myattribute");
 		//alert("You chose course with id=" + attribute);
 		
@@ -366,6 +373,7 @@
 	
 	//todo, can't open a file from code, best we can do is provide a URL to copy-paste for the user to the file_reader and do that. maybe there's a way to 'magic' the url into the filereader
 	function readSingleFile(e) {
+	console.log("inside readsinglefile");
 		var file = e.target.files[0];
 		if (!file) {
 			return;
@@ -379,6 +387,7 @@
 	}
 	
 	function displayContents(contents) {
+	console.log("inside displaycontents");
 		var element = document.getElementById('file-content');
 		element.innerHTML = contents;
 	}
