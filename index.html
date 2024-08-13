@@ -20,6 +20,22 @@
     function close_sidenav() {
         document.getElementById("mySidenav").style.display = "none";
     }
+	
+	function show_course_details(data) {
+
+        var x = document.getElementById("course_details_modal");
+        x.style.width = "100%";
+        x.style.textAlign = "center";
+        x.style.paddingTop = "10%";
+        x.style.display = "block";
+
+        document.getElementById("course_details_header").innerHTML = data.code + " : " + data.po;
+        document.getElementById("course_details_p_pass").innerHTML = "P-Pass: " + data.p_password;
+        document.getElementById("course_details_f_pass").innerHTML = "F-Pass: " + data.f_password;
+        document.getElementById("course_details_office").innerHTML = "Office: " + data.office;
+        document.getElementById("course_details_language").innerHTML = "Interpreted: " + data.extra_languages;
+
+    }    
 
     function close_course_details() {
         document.getElementById("course_details_modal").style.display = "none";
@@ -43,6 +59,55 @@
         var monthIndex = date.getMonth();
 
         return day + ' ' + monthNames[monthIndex];
+    }
+	
+	$(document).ready(function get_courses() {
+        var data = null;
+        $.getJSON('https://skerryramble.github.io/courses.json')
+            .done(function (data) { listCourses(data); })
+            .fail(function (jqXHR, textStatus, err) { window.alert('Error: ' + err); });
+    });
+
+    function listCourses(data) {
+
+        var x = null;
+        var ul = document.createElement("ul");
+        ul.className = "cp-ul cp-card-4 cp-responsive cp-striped cp-bordered cp-hoverable";
+
+        for (x in data) {
+            //create a list element and add the visual details, and an onclick to pass more details to the modal pop-up
+            var li = document.createElement("li");
+            li.innerHTML =
+                data[x].code + ' : ' + shortformatDate(data[x].date_start)
+                + ' - ' + shortformatDate(data[x].date_end);
+            var this_data = data[x];
+            li.onclick = (function (this_data) {
+                return function () {
+                    show_course_details(this_data);
+                }
+            })(this_data);
+
+            ul.appendChild(li);
+        }
+
+        document.getElementById("course_list").appendChild(ul);
+    }
+
+    function tableCourses(data) {
+
+        var x, txt = "<table class='cp-table cp-card-4 cp-responsive cp-striped cp-bordered cp-hoverable'>";
+        txt += "<thead><tr class='jvi-theme'><th>Code</th><th>Name</th><th>Starts</th><th>Ends</th></tr>";
+        for (x in data) {
+            txt += "<tr>";
+            txt += "<td>" + data[x].code + "</td>";
+            txt += "<td>" + data[x].name + "</td>";
+            txt += "<td>" + formatDate(data[x].date_start) + "</td>";
+            txt += "<td>" + formatDate(data[x].date_end) + "</td>";
+            txt += "</tr>";
+        }
+        txt += "</table>";
+
+        document.getElementById("course_list").innerHTML = txt;
     }
 
 </script>
