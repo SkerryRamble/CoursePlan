@@ -50,6 +50,7 @@
 		DataGot: function(){
 		console.log("f");
 			//due to possible network delays we need to add a listener event to the XHR so we don't try to process it until it has finished transferring
+			//TODO: There's a new way to to this
 			Engine.YearData = JSON.parse(this.responseText);
 			//console.log(Engine.YearData);
 			
