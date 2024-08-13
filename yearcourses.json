@@ -1,0 +1,133 @@
+[{
+  "id": 1,
+  "date_start": "2022-01-03",
+  "date_end": "2022-01-14",
+  "setup_quiz": true,
+  "stream": 1,
+  "background_main": "#f5f5f5",
+  "foreground": "#333333",
+  "code": "COURSE001",
+  "po": "PO001"
+},
+{
+  "id": 2,
+  "date_start": "2022-02-07",
+  "date_end": "2022-02-18",
+  "setup_quiz": false,
+  "stream": 2,
+  "background_main": "#e6e6e6",
+  "foreground": "#444444",
+  "code": "COURSE002",
+  "po": "PO002"
+},
+{
+  "id": 3,
+  "date_start": "2022-03-07",
+  "date_end": "2022-03-18",
+  "setup_quiz": true,
+  "stream": 3,
+  "background_main": "#d9d9d9",
+  "foreground": "#555555",
+  "code": "COURSE003",
+  "po": "PO003"
+},
+{
+  "id": 4,
+  "date_start": "2022-04-04",
+  "date_end": "2022-04-15",
+  "setup_quiz": false,
+  "stream": 1,
+  "background_main": "#f5f5f5",
+  "foreground": "#333333",
+  "code": "COURSE004",
+  "po": "PO004"
+},
+{
+  "id": 5,
+  "date_start": "2022-05-02",
+  "date_end": "2022-05-13",
+  "setup_quiz": true,
+  "stream": 2,
+  "background_main": "#e6e6e6",
+  "foreground": "#444444",
+  "code": "COURSE005",
+  "po": "PO005"
+},
+{
+  "id": 6,
+  "date_start": "2022-06-06",
+  "date_end": "2022-06-17",
+  "setup_quiz": false,
+  "stream": 3,
+  "background_main": "#d9d9d9",
+  "foreground": "#555555",
+  "code": "COURSE006",
+  "po": "PO006"
+},
+{
+  "id": 7,
+  "date_start": "2022-07-04",
+  "date_end": "2022-07-15",
+  "setup_quiz": true,
+  "stream": 1,
+  "background_main": "#f5f5f5",
+  "foreground": "#333333",
+  "code": "COURSE007",
+  "po": "PO007"
+},
+{
+  "id": 8,
+  "date_start": "2022-08-01",
+  "date_end": "2022-08-12",
+  "setup_quiz": false,
+  "stream": 2,
+  "background_main": "#e6e6e6",
+  "foreground": "#444444",
+  "code": "COURSE008",
+  "po": "PO008"
+},
+{
+  "id": 9,
+  "date_start": "2022-09-05",
+  "date_end": "2022-09-16",
+  "setup_quiz": true,
+  "stream": 3,
+  "background_main": "#d9d9d9",
+  "foreground": "#555555",
+  "code": "COURSE009",
+  "po": "PO009"
+},
+{
+  "id": 10,
+  "date_start": "2022-10-03",
+  "date_end": "2022-10-14",
+  "setup_quiz": false,
+  "stream": 1,
+  "background_main": "#f5f5f5",
+  "foreground": "#333333",
+  "code": "COURSE010",
+  "po": "PO010"
+},
+{
+  "id": 11,
+  "date_start": "2022-11-07",
+  "date_end": "2022-11-18",
+  "setup_quiz": true,
+  "stream": 2,
+  "background_main": "#e6e6e6",
+  "foreground": "#444444",
+  "code": "COURSE011",
+  "po": "PO011"
+},
+{
+  "id": 12,
+  "date_start": "2022-12-05",
+  "date_end": "2022-12-16",
+  "setup_quiz": false,
+  "stream": 1,
+  "background_main": "#f5f5f5",
+  "foreground": "#333333",
+  "code": "COURSE012",
+  "po": "PO012"
+}
+]
