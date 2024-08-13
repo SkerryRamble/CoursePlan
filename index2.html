@@ -44,6 +44,12 @@
 			var xhr = new XMLHttpRequest();
 			xhr.addEventListener("load",Engine.DataGot);	//we'll need to wait for the response and when we get it call the DataGot function
 			xhr.open("GET", 'https://skerryramble.github.io/CoursePlan/courses.json',true);
+			
+			if (xhr.status === 200) {
+				const data = JSON.parse(xhr.responseText);
+				console.log(data);
+			}
+			
 			xhr.send();		
 		},
 		
