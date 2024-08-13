@@ -34,6 +34,7 @@
 			Engine.GameLoop(); //start rendering the game!				
 		},
 		GameRunning: null, //this is a new variable so we can pause/stop the game
+		
 		Update: function() { //this is where our logic gets updated			
 			Engine.Draw(); //call the canvas draw function
 		},
@@ -46,7 +47,7 @@
 		},
 		
 		DataGot: function(){
-		console.log("Inside DataGot");
+			console.log("Inside DataGot");
 			//due to possible network delays we need to add a listener event to the XHR so we don't try to process it until it has finished transferring
 			//TODO: There's a new way to to this. Act on 200
 			Engine.YearData = JSON.parse(this.responseText);
@@ -98,11 +99,12 @@
 				Engine.Rect(slot_x,slot_y,slot_width,stream_height,"red");	
 				
 				//TODO: add Text to the Rects
-			}			
+			}
+			return false;			
 		},
 		
 		Draw: function() { //this is where we will draw all the information for the game!
-			Engine.Canvas.Context.clearRect(0,0,Engine.Canvas.width,Engine.Canvas.height); //clear the frame
+			//Engine.Canvas.Context.clearRect(0,0,Engine.Canvas.width,Engine.Canvas.height); //clear the frame
 			
 			Engine.GameLoop(); //re-iterate back to gameloop
 		},
