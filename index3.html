@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />	<!-- Boilerplate: set the character encoding -->
+		<meta name="viewport" content="width=device-width, initial-scale=1">	<!-- Boilerplate: declare the viewport default settings -->
+		<title>Course Plan</title>		<!-- Title of the page which appears in the browser tab -->
+		<link rel="shortcut icon" href="/images/capman_icon.ico">	<!--link to the icon that appears in the browser tab-->
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Comfortaa|Exo|Orbitron|Raleway">
+		
+		
+		<style>
+			
+			body, html{
+			box-sizing:border-box;
+			margin:0px;
+			padding:0px;
+			font: 1rem Comfortaa, Helvetica, sans-serif;
+			clear:both;
+			}
+			
+			.year_view{
+			width:91vw;
+			height:96vh;
+			background:whitesmoke;
+			position:fixed;
+			left:8vw;
+			top:3vh;
+			border:1px solid black;
+			margin:0;
+			padding:0;
+			}
+			
+			.course_slot{
+			box-sizing:border-box;
+			position:absolute;
+			border-radius:4px;
+			font: bold 2rem Comfortaa, Helvetica, sans-serif;
+			border:1px solid #808080;
+			padding:0px;
+			margin:0px;
+			cursor:-webkit-zoom-in;
+			z-index:2;
+			overflow:hidden;
+			}
+			
+			.course_slot_inner{			
+			text-align:center;
+			width:100%;
+			overflow:hidden;			
+			display:block;/*reset from inline*/
+			margin:0;/*remove defaults*/
+			padding:0px;
+			}
+			
+			.rotate_text{
+			transform:rotate(90deg) translateX(3vh);
+			transform-origin:50% 50%;
+			}
+			
+			
+			@keyframes glowing {
+			0% { box-shadow: 0 0 2px rgba(205,92,92,0.5); }
+			50% { box-shadow: 0 0 3px rgba(205,92,92,1); }
+			100% { box-shadow: 0 0 2px rgba(205,92,92,0.5); }
+			}
+			
+			.course_quiz_highlight{
+			border:4px solid indianred;			
+			z-index:10;		
+			animation: glowing 1500ms infinite;
+			}
+			
+			.month_line, .date_line, .week_line{
+			left:0;
+			height:2vh;
+			width:100%;
+			position:absolute;
+			z-index:0;
+			font-size:1vh;
+			}
+			
+			.month_line{
+			background:grey;
+			}
+			
+			.date_line{			
+			background:lime;			
+			}
+			
+			.week_line{			
+			background:yellow;
+			}
+			
+			.week_box{
+			width:7vw;
+			border:1px solid black;
+			}
+			
+			input.switch:empty {
+			margin-left: -999px;
+			}
+			input.switch:empty ~ label {
+			position: relative;
+			float: left;
+			line-height: 1.6em;
+			text-indent: 4em;
+			margin: 0.2em 0;
+			cursor: pointer;
+			-webkit-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			user-select: none;
+			}
+			input.switch:empty ~ label:before, input.switch:empty ~ label:after {
+			position: absolute;
+			display: block;
+			top: 0;
+			bottom: 0;
+			left: 0;
+			content:' ';
+			width: 3.6em;
+			background-color: #c33;
+			border-radius: 0.3em;
+			box-shadow: inset 0 0.2em 0 rgba(0, 0, 0, 0.3);
+			-webkit-transition: all 100ms ease-in;
+			transition: all 100ms ease-in;
+			}
+			input.switch:empty ~ label:after {
+			width: 1.4em;
+			top: 0.1em;
+			bottom: 0.1em;
+			margin-left: 0.1em;
+			background-color: #fff;
+			border-radius: 0.15em;
+			box-shadow: inset 0 -0.2em 0 rgba(0, 0, 0, 0.2);
+			}
+			input.switch:checked ~ label:before {
+			background-color: #393;
+			}
+			input.switch:checked ~ label:after {
+			margin-left: 2em;
+			}
+			
+			
+			
+		</style>
+		
+		
+		
+	</head>
+	<body>
+		<!-- <iframe id="viewer"></iframe> -->
+		
+		<div>
+			<div>
+				<button onclick="year_down();">-</button>
+				<button onclick="year_up();">+</button><div id="displayed_year"></div>
+				<div onclick="draw_main();">
+					<input type="checkbox" id="stream1" name="switch1" class="switch" checked="true"/>
+					<label for="stream1">600A</label>
+				</div>
+				<div>&nbsp;</div>
+				<div onclick="draw_main();">
+					<input type="checkbox" id="stream2" name="switch2" class="switch" checked="true"/>
+					<label for="stream2">600B</label>
+				</div>
+				<div>&nbsp;</div>
+				<div onclick="draw_main();">
+					<input type="checkbox" id="stream3" name="switch3" class="switch" checked="true"/>
+					<label for="stream3">600C</label>
+				</div>
+				<div>&nbsp;</div>
+				<div onclick="draw_main();">
+					<input type="checkbox" id="stream4" name="switch4" class="switch" />
+					<label for="stream4">700ABC</label>
+				</div>
+				<div>&nbsp;</div>
+				<div onclick="draw_main();">
+					<input type="checkbox" id="stream5" name="switch5" class="switch" />
+					<label for="stream5">External</label>
+				</div>
+				<div>&nbsp;</div>
+				<div onclick="draw_main();">
+					<input type="checkbox" id="has_quiz" name="switch6" class="switch" />
+					<label for="has_quiz">Quiz</label>
+				</div>
+				
+			</div>
+			
+		</div>
+		<div class="year_view container">
+			<div id="calendar"></div>
+			<div id="year"></div>			
+		</div>
+		
+	</body>
+</html>
+
+<script>
+	var display_year;
+	var all_course_divs;
+	
+	window.onload = function(){
+		init();
+	};
+	
+	function init(){
+	
+	var temp = new Date();
+		display_year = temp.getFullYear();
+		draw_main();
+	}
+	/*$(document).ready(function() {
+		var temp = new Date();
+		display_year = temp.getFullYear();
+		draw_main();
+	});
+	*/
+	//onresize=onload=function(){document.body.style.fontSize=window.innerWidth+"px"}
+	
+	function draw_main(){
+		document.getElementById("displayed_year").innerHTML = display_year;
+		get_year();
+	}
+	
+	function year_up(){
+		display_year++;
+		draw_main();
+	}
+	
+	function year_down(){
+		display_year--;
+		draw_main();
+	}
+	
+	function get_year(){
+		document.getElementById('year').innerHTML = '';
+		
+		var data = null;			
+
+			//GET data from api
+			var request = new XMLHttpRequest();
+			request.open('GET', 'https://github.com/SkerryRamble/CoursePlan/blob/main/yearcourses.json' + display_year, true);
+			request.onload = function() {
+				if (this.status >= 200 && this.status < 400) {
+					// Success!
+					var data = JSON.parse(this.response);
+					//console.log(data);
+					draw_year(data);
+					
+				}
+				else {
+					alert("Failed to get data from the server. Probably a network hiccough, try again.");
+				}
+			};
+			request.onerror = function() {
+				alert("There was a connection error. Check you're online, then try again.");
+			};
+			request.send();
+			//end of GET call
+		
+		
+		
+		
+		
+		
+	}
+	
+	function draw_year(data){	
+		//get how many and which streams are visible, jumping out if none are
+		var stream_1 = document.getElementById('stream1').checked;
+		var stream_2 = document.getElementById('stream2').checked;
+		var stream_3 = document.getElementById('stream3').checked;
+		var stream_4 = document.getElementById('stream4').checked;
+		var stream_5 = document.getElementById('stream5').checked;		
+		var number_of_streams = stream_1 + stream_2 + stream_3 + stream_4 + stream_5;
+		
+		if (number_of_streams < 1){return;}
+		
+		var calendar_height = 96;	
+		draw_calendar(number_of_streams, calendar_height);
+		
+		
+		var all = '';
+		var current_slot = '';
+		var day_width = 1;		
+		var one_day = 1000 * 60 * 60 * 24;
+		var screen_width = 91;
+		var calendar_gap = 6;
+			
+		var number_of_quarters = 4;
+		var stream_height = (calendar_height - (4 * calendar_gap))/ number_of_quarters / number_of_streams;	
+		
+		var has_quiz = document.getElementById('has_quiz').checked;
+		console.log(has_quiz);
+		
+		for(slot in data){
+			//check is this slot in a visible stream
+			if (
+			(data[slot].stream == 1 && stream_1) ||
+			(data[slot].stream == 2 && stream_2) ||
+			(data[slot].stream == 3 && stream_3) ||
+			(data[slot].stream == 4 && stream_4) ||
+			(data[slot].stream == 9 && stream_5)
+			){		
+				
+				if (data[slot].id != null){
+					var date_start = new Date(data[slot].date_start);
+					var date_end = new Date(data[slot].date_end);	//need to take date_end+1
+					var day_diff = new Date(date_end - date_start);
+					var slot_width = Math.floor(day_diff/one_day) + 1;
+					var level = data[slot].stream-1;	//not so simple, stream = lecture_room_id which is not linear; we need to assign these accurately
+					if (level > 6) {level = 4;}	//account for odd indexing from sql of lecture_room_id table					
+					
+					var jan1 = new Date('1 January ' + display_year);
+					day_diff = new Date(date_start - jan1);
+					var slot_x = Math.floor(day_diff/one_day);
+					var slot_y = ((number_of_streams-1) * stream_height);				
+					
+					//Calculate overshoot of right edge of calendar
+					if (slot_x + slot_width > (3 * screen_width)){
+						slot_x -= screen_width;
+						slot_y += (stream_height * number_of_streams) + calendar_gap;
+					}
+					if (slot_x + slot_width > (2 * screen_width)){
+						slot_x -= screen_width;
+						slot_y += (stream_height * number_of_streams) + calendar_gap;
+					}
+					if (slot_x + slot_width > (1 * screen_width)){
+						slot_x -= screen_width;
+						slot_y += (stream_height * number_of_streams) + calendar_gap;
+					}
+					
+					
+					var rotate = '';
+					if (slot_width<4) {rotate = " rotate_text"; };
+					var font_size = 0.15 * slot_width;
+					
+					var highlight_quiz = '';
+					if (data[slot].setup_quiz == true && has_quiz == true) { highlight_quiz = " course_quiz_highlight"; };
+					console.log(level, stream_height, slot_y);
+					var current_slot = '<div class="course_slot' + highlight_quiz + '" style="' +
+					'font-size:' + font_size + 'em;' +
+					'width:calc(' + (slot_width * day_width) + 'vw);' +
+					'height:calc(' + stream_height + 'vh);' +
+					'left:calc(8vw + '+ slot_x + 'vw);' +
+					'top:calc(5vh + ' + slot_y + 'vh);' +
+					'background-color:' + data[slot].background_main + ';' +
+					'color:' + data[slot].foreground + ';' +
+					'" data-myattribute="' + data[slot].id +
+					'"><div class="course_slot_inner' + rotate + '">' + data[slot].code + ' - ' + data[slot].po + '</div></div>';
+					
+					all += current_slot;
+				}
+			}
+		}
+		
+		//TODO: the response delay prevents instant drawing, either find a method to account for delay then draw, or revert back to the older flickery method
+		
+		document.getElementById('year').innerHTML += all;
+		
+		var entire_class = document.getElementsByClassName('course_slot');
+		for (var i=0;i<entire_class.length;i++){
+			entire_class[i].addEventListener('click', myFunction, false);			
+		}		
+	}
+	
+	function get_stream_test() {
+		var a,b,c;
+		
+		var xhttp;
+		
+		xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				a = this.responseText;
+				console.log(a,1);
+			}
+		};
+		xhttp.open("GET", 'api/stream_c/' + display_year, true);
+		xhttp.send();
+		
+		console.log(a,2);
+		draw_stream(a,0);
+	}
+	
+	
+	function draw_calendar(number_of_streams, calendar_height){
+		//populate the month/week/date lines with their content
+		//need to calculate the '1st' week of the year, week_position_1 can never have wed=5th jan which constrains our choice
+				
+		var x_pos_increment = 24;
+		var calendar = document.getElementById('calendar');
+		var inner_calendar = '';
+		var x_pos = 0;
+		for (var i=1;i<5;i++){
+			inner_calendar +='<div class="month_line" style="top:' + x_pos + 'vh;">months</div>';
+			inner_calendar +='<div class="week_line" style="top:' + (2 + x_pos) + 'vh;">weeks</div>';
+			inner_calendar +='<div class="date_line" style="top:' + (4 + x_pos) + 'vh;">dates</div>';
+			x_pos += x_pos_increment;
+		}
+		var calendar = document.getElementById('calendar');
+		calendar.innerHTML = inner_calendar;
+		
+		var wks_q1, wks_q2, wks_q3, wks_q4;
+		for (var i=1;i<=13;i++){
+			
+		}		
+	}
+	
+	
+	var myFunction = function() {
+		var attribute = this.getAttribute("data-myattribute");
+		//alert("You chose course with id=" + attribute);
+		
+		
+		//window.open("file://///Z:/","","width=960,height=960");
+		//window.open();
+		
+		
+		
+		var obj_url = window.URL.createObjectURL("file://S:/test.pdf");
+var iframe = document.getElementById('viewer');
+iframe.setAttribute('src', obj_url);
+window.URL.revokeObjectURL(obj_url);
+	};
+	
+	//todo, can't open a file from code, best we can do is provide a URL to copy-paste for the user to the file_reader and do that. maybe there's a way to 'magic' the url into the filereader
+	function readSingleFile(e) {
+  var file = e.target.files[0];
+  if (!file) {
+    return;
+  }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var contents = e.target.result;
+    displayContents(contents);
+  };
+  reader.readAsText(file);
+}
+
+function displayContents(contents) {
+  var element = document.getElementById('file-content');
+  element.innerHTML = contents;
+}
+
+
+	
+</script>
