@@ -43,20 +43,14 @@
 		GetData: function() {
 			var xhr = new XMLHttpRequest();
 			xhr.addEventListener("load",Engine.DataGot);	//we'll need to wait for the response and when we get it call the DataGot function
-			xhr.open("GET", 'https://skerryramble.github.io/CoursePlan/courses.json',true);
-			
-			if (xhr.status === 200) {
-				const data = JSON.parse(xhr.responseText);
-				console.log(data);
-			}
-			
+			xhr.open("GET", 'https://skerryramble.github.io/CoursePlan/courses.json',true);			
 			xhr.send();		
 		},
 		
 		DataGot: function(){
 		console.log("f");
 			//due to possible network delays we need to add a listener event to the XHR so we don't try to process it until it has finished transferring
-			Engine.YearData = this.responseText;
+			Engine.YearData = JSON.parse(this.responseText);
 			//console.log(Engine.YearData);
 			
 			//what we want is a loop of all the xy coords of courses from the course schedule, stored in YearData
