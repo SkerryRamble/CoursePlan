@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<title>Course Plan Overview</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css"><!--Links to nice graphical icons-->
+<link rel="stylesheet" href="courseplan.css">
+<script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.0.3.min.js"></script>
+<script>
+    // Side navigation
+    function open_sidenav() {
+        var x = document.getElementById("mySidenav");
+        x.style.width = "100%";
+        x.style.textAlign = "center";
+        x.style.fontSize = "50px";
+        x.style.paddingTop = "10%";
+        x.style.display = "block";
+    }
+
+    function sidenav_close() {
+        document.getElementById("mySidenav").style.display = "none";
+    }
+
+    function close_course_details() {
+        document.getElementById("course_details_modal").style.display = "none";
+    }
+
+    function shortformatDate(d) {
+        var monthNames = [
+            "Jan", "Feb", "Mar",
+            "Apr", "May", "Jun", "Jul",
+            "Aug", "Sep", "Oct",
+            "Nov", "Dec"
+        ];
+
+        //ensure date is correct format coming from SQL
+        var date = new Date(d);
+
+        var day = date.getDate();
+
+        if (day < 10) { day = '0' + day; }
+
+        var monthIndex = date.getMonth();
+
+        return day + ' ' + monthNames[monthIndex];
+    }
+
+</script>
+
+<body>
+
+    <!-- Side Navigation -->
+    <nav class="cp-sidenav cp-white cp-xlarge cp-card-2 cp-animate-left" style="display:none" id="mySidenav">
+        <h1 class="cp-text-teal cp-xlarge">Side Navigation</h1>
+        <a href="javascript:void(0)" onclick="cp_close()" class="cp-closenav cp-text-theme cp-xlarge">Close <i class="fa fa-remove"></i></a>
+        <a href="javascript:void(0)" class="cp-xlarge">Empty Link</a>
+        <a href="http://www.watching-grass-grow.com/about.html" class="cp-xlarge">Working Link</a>
+    </nav>
+
+    <!-- Header -->
+    <header class="cp-theme cp-row-padding cp-slim cp-card-2 cp-topnav" id="myHeader">
+        <div class="cp-col">
+            <div class="cp-col s2 cp-left-align"><i onclick="open_sidenav()" class="fa fa-bars cp-large cp-opennav"></i></div>
+            <div class="cp-col s8 cp-center">CoursePlan</div>
+            <div class="cp-col s2 cp-right-align cp-hover-light-blue cp-right" onclick="document.getElementById('id01').style.display='block'" style="font-weight:90;">HELP</div>
+        </div>
+    </header>
+
+    <!-- Modal/Pop up Course Details -->
+    <div id="course_details_modal" class="cp-modal cp-container">
+        <div class="cp-modal-content cp-card-8 cp-animate-left">
+            <header class="cp-container cp-theme-l1">
+                <span onclick="document.getElementById('course_details_modal').style.display='none'" class="cp-closebtn"><i class="fa fa-remove"></i></span>
+                <h4 id="course_details_header"></h4>
+            </header>
+            <div class="cp-padding cp-card-2">
+                <!--TODO: as a nicer grid-->
+                <div class="cp-col m4" id="course_details_p_pass"></div>
+                <div class="cp-col m4" id="course_details_f_pass"></div>
+                <div id="course_details_lecture"></div>
+                <div id="course_details_office"></div>
+                <div id="course_details_language"></div>
+                <div id="course_details_po"></div>
+            </div>
+            <footer class="cp-container cp-theme-l1">
+                <p>The Footman</p>
+            </footer>
+        </div>
+    </div>
+
+
+    <!-- Modal/Pop up help dialog -->
+    <div id="id01" class="cp-modal">
+        <div class="cp-modal-content cp-card-8 cp-animate-top">
+            <header class="cp-container cp-theme-l1">
+                <span onclick="document.getElementById('id01').style.display='none'" class="cp-closebtn"><i class="fa fa-remove"></i></span>
+                <h4>Course Schedule Viewer</h4>
+            </header>
+            <div class="cp-padding">
+                <ol>
+                    <li>Only ongoing and upcoming courses are shown</li>
+                    <li>Tap a course to get a pop-up showing more context relevant info for that course</li>
+                    <li>The <i class="fa fa-bars"></i> at the top left has more options</li>
+                    <li>Contact IT if you have any feedback</li>
+                </ol>
+            </div>
+            <footer class="cp-container cp-theme-l1">
+                <p>The Footman</p>
+            </footer>
+        </div>
+    </div>
+
+    <div id="search_courses" class="cp-animate-opacity">
+        <div class="cp-third cp-truetype-font cp-large">
+            <div id="course_list"></div>
+        </div>
+    </div>
+</body>
+</html>
