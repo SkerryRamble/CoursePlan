@@ -46,8 +46,8 @@
     //main call to get JSON data and pass it through to eventually populate the course_list DOM element
     $(document).ready(function get_courses() {
         const data = null;
-        // $.getJSON('https://skerryramble.github.io/CoursePlan/courses.json')
-        $.getJSON('../courses.json')
+        //$.getJSON('https://skerryramble.github.io/CoursePlan/courses.json')
+        $.getJSON('courses.json')
             .done(function (data) { listCourses(data); })
             .fail(function (jqXHR, textStatus, err) { window.alert('Error: ' + err); });
     });
