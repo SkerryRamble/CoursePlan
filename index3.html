@@ -1,105 +1,571 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8" />	<!-- Boilerplate: set the character encoding -->
-		<meta name="viewport" content="width=device-width, initial-scale=1">	<!-- Boilerplate: declare the viewport default settings -->
-		<title>Course Plan</title>		<!-- Title of the page which appears in the browser tab -->
-		<link rel="shortcut icon" href="/images/capman_icon.ico">	<!--link to the icon that appears in the browser tab-->
-		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Comfortaa|Exo|Orbitron|Raleway">
-		
-		
-		<style>
-			
-			body, html{
-			box-sizing:border-box;
-			margin:0px;
-			padding:0px;
+
+<head>
+	<meta charset="utf-8" /> <!-- Boilerplate: set the character encoding -->
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- Boilerplate: declare the viewport default settings -->
+	<title>Course Plan</title> <!-- Title of the page which appears in the browser tab -->
+	<!-- <link rel="shortcut icon" href="/images/capman_icon.ico"> link to the icon that appears in the browser tab -->
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Comfortaa|Exo|Orbitron|Raleway">
+	<link rel="icon" href="data:,">
+
+	<style>
+		body,
+		html {
+			box-sizing: border-box;
+			margin: 0px;
+			padding: 0px;
 			font: 1rem Comfortaa, Helvetica, sans-serif;
-			clear:both;
+			clear: both;
+		}
+
+		.year_text_class {
+			position: absolute;
+			bottom: 1.2vh;
+			right: 0.2vw;
+			font-size: 3vw;
+			z-index: 5;
+		}
+
+		.created_text_class {
+			position: absolute;
+			bottom: 0.2vh;
+			right: 0.2vw;
+			font-size: 0.8vh;
+			z-index: 5;
+		}
+
+
+		.hotel_icon {
+			position: absolute;
+			bottom: 0.1vh;
+			right: 0.1vw;
+			height: 1.5vh;
+			width: 1.5vw;
+		}
+
+		.special_comment_icon {
+			position: absolute;
+			bottom: 0.1vh;
+			left: 0.1vh;
+			height: 1.5vh;
+			z-index: 20;
+		}
+
+		.year_view {
+			overflow: hidden;
+			width: 91vw;
+			height: 96vh;
+			background: whitesmoke;
+			position: fixed;
+			left: 8.5vw;
+			top: 2vh;
+			border: 0.1vw solid black;
+			margin: 0;
+			padding: 0;
+			font-weight: normal;
+		}
+
+		.week_style {
+			width: 7vw;
+			height: 1vh;
+			line-height: 1vh;
+			font-size: 0.5vw;
+			font-family: sans-serif;
+			position: absolute;
+			border-left: 0.01vw solid black;
+			text-align: center;
+			user-select: none;
+			font-weight: normal;
+		}
+
+		.date_style {
+			width: 1vw;
+			height: 1vh;
+			line-height: 1vh;
+			font-size: 0.5vw;
+			font-family: sans-serif;
+			position: absolute;
+			border-left: 0.01vw solid black;
+			text-align: center;
+			user-select: none;
+			font-weight: normal;
+			/* cursor: url(http://capman.jvi.org/images/cal.png), default; */
+		}
+
+		.month_border {
+			width: 1vw;
+			height: 1vh;
+			line-height: 1vh;
+			font-size: 0.5vw;
+			font-family: sans-serif;
+			position: absolute;
+			border-left: 0.01vw solid black;
+			text-align: center;
+			user-select: none;
+			font-weight: normal;
+		}
+
+		.month_style {
+			/* width:1vw; */
+			height: 1vh;
+			line-height: 1vh;
+			font-size: 0.5vw;
+			font-family: sans-serif;
+			position: absolute;
+			/* border-left:0.01vw solid black; */
+			text-align: center;
+			user-select: none;
+			font-weight: normal;
+		}
+
+		.overlap_trailing_edge:after {
+			content: " ";
+			display: block;
+			position: absolute;
+			top: 0px;
+			right: -1vw;
+			width: 2vw;
+			height: 100%;
+			background: linear-gradient(-135deg, rgba(255, 255, 255, 0.5) 50%, transparent 50%) 0 0%, transparent linear-gradient(-45deg, rgba(255, 255, 255, 0.5) 50%, transparent 50%) 0 0%;
+			background-repeat: repeat-y;
+			background-size: 1vw 1vh;
+			z-index: 3;
+		}
+
+		.overlap_leading_edge:after {
+			content: " ";
+			display: block;
+			position: absolute;
+			top: 0px;
+			left: 0px;
+			width: 1vw;
+			height: 100%;
+			background: linear-gradient(135deg, rgba(255, 255, 255, 0.5) 50%, transparent 50%) 0 0%, transparent linear-gradient(45deg, rgba(255, 255, 255, 0.5) 50%, transparent 50%) 0 0%;
+			background-repeat: repeat-y;
+			background-size: 1vw 1vh;
+			z-index: 3;
+		}
+
+		.weekend_class {
+			background: rgba(0, 0, 0, 0.1);
+			height: 96vh;
+			border: none;
+		}
+
+		.holiday_class {
+			background: rgb(0, 255, 0);
+			color: black;
+		}
+
+		.course_slot {
+			box-sizing: border-box;
+			position: absolute;
+			border: 0.01vw solid black;
+			border-bottom: none;
+			/*covered by stream borders */
+			border-top: none;
+			/*covered by stream borders */
+			padding: 0px;
+			margin: 0px;
+			cursor: -webkit-zoom-in;
+		}
+
+		.course_slot:hover {
+			animation: zooming .2s;
+			animation-fill-mode: forwards;
+			z-index: 99;
+		}
+
+		.rotate_slot_detected {
+			box-sizing: border-box;
+			position: absolute;
+			border: 0.01vw solid black;
+			border-bottom: none;
+			/*covered by stream borders */
+			border-top: none;
+			/*covered by stream borders */
+			padding: 0px;
+			margin: 0px;
+			cursor: -webkit-zoom-in;
+		}
+
+		.rotate_slot_detected:hover {
+			animation: zooming_from_rotated .2s;
+			animation-fill-mode: forwards;
+			z-index: 99;
+		}
+
+		@keyframes zooming {
+
+			/*from {
+		transform: scale(1);
+		-ms-transform: scale(1);
+	}
+	to {
+		transform: scale(1.01);
+		-ms-transform: scale(1.01);
+		transform-origin: center;
+		-ms-transform-origin: center;
+		border: 3px solid black;
+		z-index:99;
+	}*/
+			from {}
+
+			to {
+				box-shadow: inset 0px 0px 0.2vw 0.1vw black
 			}
-			
-			.year_view{
-			width:91vw;
-			height:96vh;
-			background:whitesmoke;
-			position:fixed;
-			left:8vw;
-			top:3vh;
-			border:1px solid black;
-			margin:0;
-			padding:0;
+		}
+
+		@keyframes zooming_from_rotated {
+			from {
+				transform: scale(1);
+				-ms-transform: scale(1);
 			}
-			
-			.course_slot{
-			box-sizing:border-box;
-			position:absolute;
-			border-radius:4px;
-			font: bold 2rem Comfortaa, Helvetica, sans-serif;
-			border:1px solid #808080;
-			padding:0px;
-			margin:0px;
-			cursor:-webkit-zoom-in;
-			z-index:2;
-			overflow:hidden;
+
+			to {
+				transform: scale(1.05) rotateZ(0deg);
+				-ms-transform: scale(1.05) rotateZ(0deg);
+				transform-origin: right;
+				-ms-transform-origin: right;
+				border: 1px solid black;
+				z-index: 99;
+				width: 5vw;
+				font-size: 1vh;
+				line-height: 1vh;
 			}
-			
-			.course_slot_inner{			
-			text-align:center;
-			width:100%;
-			overflow:hidden;			
-			display:block;/*reset from inline*/
-			margin:0;/*remove defaults*/
-			padding:0px;
+		}
+
+		.rotate_text {
+			transform: rotateZ(90deg);
+		}
+
+		.course_slot_inner {
+			text-align: center;
+			width: 100%;
+			overflow: hidden;
+			display: block;
+			/*reset from inline*/
+			margin: 0;
+			/*remove defaults*/
+			padding: 0px;
+			white-space: pre;
+			z-index: 1;
+			font-weight: bold;
+		}
+
+		.active_highlight_residence:before {
+			content: " ";
+			display: block;
+			position: absolute;
+			top: 0px;
+			right: 0px;
+			/* width:100%; */
+			/* height:100%; */
+			/* background: linear-gradient(-135deg, rgba(255,0,0,0.5) 0, rgba(255,0,0,0.5) 2vw, transparent 2vw, transparent); */
+			width: 2vw;
+			height: 2vw;
+			background: url('../images/residence_icon.svg') no-repeat;
+			background-size: contain;
+
+		}
+
+		.active_highlight_today {
+			animation: glowing 5s infinite;
+			background: rgba(0, 255, 0, 0.35);
+			z-index: 4;
+		}
+
+
+		.active_highlight_shared_costs {
+			outline: 0.5vw solid rgba(255, 0, 255, 0.8);
+			z-index: 4;
+		}
+
+
+		.active_highlight_po {
+			outline: 0.5vw solid rgba(255, 0, 0, 0.8);
+			z-index: 4;
+		}
+
+
+		.active_highlight_org {
+			outline: 0.5vw solid rgba(0, 0, 255, 0.8);
+			z-index: 4;
+		}
+
+		.active_highlight_interpretation {
+			/*outline: 4px solid yellow;*/
+			border: 5px solid transparent;
+			border-image: linear-gradient(to bottom, white 30%, blue 30%, blue 70%, red 70%, red);
+			border-image-slice: 1;
+			z-index: 4;
+		}
+
+		@keyframes glowing {
+			0% {
+				box-shadow: 0 0 4px 4px rgb(0, 255, 0);
 			}
-			
-			.rotate_text{
-			transform:rotate(90deg) translateX(3vh);
-			transform-origin:50% 50%;
+
+			25% {
+				box-shadow: 0 0 6px 5px rgb(0, 255, 255);
 			}
-			
-			
-			@keyframes glowing {
-			0% { box-shadow: 0 0 2px rgba(205,92,92,0.5); }
-			50% { box-shadow: 0 0 3px rgba(205,92,92,1); }
-			100% { box-shadow: 0 0 2px rgba(205,92,92,0.5); }
+
+			50% {
+				box-shadow: 0 0 8px 6px rgb(255, 0, 255);
 			}
-			
-			.course_quiz_highlight{
-			border:4px solid indianred;			
-			z-index:10;		
+
+			75% {
+				box-shadow: 0 0 6px 5px rgb(255, 255, 0);
+			}
+
+			100% {
+				box-shadow: 0 0 4px 4px rgb(0, 255, 0);
+			}
+		}
+
+		.course_quiz_highlight {
+			border: 4px solid indianred;
+			z-index: 10;
 			animation: glowing 1500ms infinite;
+		}
+
+		.month_line {
+			background: lightgray;
+		}
+
+		.month_line,
+		.date_line,
+		.week_line {
+			left: 0;
+			line-height: calc(2vh - 1px);
+			height: calc(2vh - 1px);
+			width: 100%;
+			position: absolute;
+			border-top: 1px solid rgba(0, 0, 0, 0.8);
+		}
+
+		.streams {
+			border-top: 1px solid black;
+			width: 91vw;
+			position: absolute;
+		}
+
+		.schedule_ul {
+			list-style: none;
+			margin: 0;
+			padding: 0;
+		}
+
+		.schedule_li {
+			display: block;
+			text-align: center;
+			z-index: -1;
+		}
+
+		.schedule_td,
+		.schedule_th,
+		.schedule_tr {
+			padding: 0px;
+			line-height: 1.5vh;
+			height: 1.5vh;
+		}
+
+		.schedule_table {
+			border-spacing: 0px;
+			border-collapse: collapse;
+		}
+
+		.schedule_input[type=checkbox],
+		.schedule_input[type=radio] {
+			position: absolute !important;
+			clip: rect(0, 0, 0, 0);
+			overflow: hidden;
+		}
+
+		.schedule_label {
+			user-select: none;
+			font: bold 1.15vh Exo, sans-serif;
+			line-height: 1.5vh;
+			height: 1.5vh;
+			border: 0.05vw solid rgba(0, 0, 0, 0.6);
+			box-shadow: none;
+			width: 4vw;
+			text-align: center;
+			display: inline-block;
+			background: orange;
+			/*position:fixed;*/
+			left: 4.5vw;
+			white-space: pre;
+		}
+
+		.schedule_input:checked+.schedule_label {
+			background-color: rgba(16, 250, 32, 1);
+			box-shadow: 0.2vw 0.2vw 0.1vw grey;
+		}
+
+		.schedule_button {
+			margin: 0px;
+			padding: 0px;
+			/*position:fixed;*/
+			user-select: none;
+			font: 0.75vw Exo, sans-serif;
+			border: 0.05vw solid rgba(0, 0, 0, 0.6);
+			box-shadow: none;
+			height: 2vh;
+			line-height: 2vh;
+			width: 2vw;
+			text-align: center;
+			display: inline-block;
+			background: steelblue;
+			vertical-align: middle;
+			outline: none;
+			color: white;
+		}
+
+		.schedule_button:hover {
+			background: lightsteelblue;
+		}
+
+		.schedule_button:active {
+			background: yellow;
+		}
+
+		.tally_box {
+			right: -1vw;
+			bottom: 0;
+			position: absolute;
+			background: white;
+			outline: 1px solid black;
+			width: 1vw;
+			text-align: center;
+			color: black;
+			z-index: 9;
+			font-size: 1vh;
+			height: 1vh;
+			line-height: 1vh;
+		}
+
+		.special_comment {
+			left: 0;
+			bottom: 0;
+			position: absolute;
+			background: white;
+			border: 2px solid rgba(255, 0, 0, 0.5);
+			border-radius: 0.5vw;
+			width: 0.5vw;
+			height: 0.5vw;
+			z-index: 4;
+		}
+
+		@media print {
+			.year_view {
+				background-color: white;
+				left: 4.5vw;
+				overflow: hidden;
+				width: 91vw;
 			}
-			
-			.month_line, .date_line, .week_line{
-			left:0;
-			height:2vh;
-			width:100%;
-			position:absolute;
-			z-index:0;
-			font-size:1vh;
+
+			.hide_with_print {
+				display: none;
 			}
-			
-			.month_line{
-			background:grey;
+
+			@page {
+				margin: 0.0cm;
+				padding: 0.0cm;
 			}
-			
-			.date_line{			
-			background:lime;			
+		}
+
+		.year_view {
+			width: 91vw;
+			height: 96vh;
+			background: whitesmoke;
+			position: fixed;
+			left: 8vw;
+			top: 3vh;
+			border: 1px solid black;
+			margin: 0;
+			padding: 0;
+		}
+
+		.course_slot {
+			box-sizing: border-box;
+			position: absolute;
+			border-radius: 4px;
+			font: bold 2rem Comfortaa, Helvetica, sans-serif;
+			border: 1px solid #808080;
+			padding: 0px;
+			margin: 0px;
+			cursor: -webkit-zoom-in;
+			z-index: 2;
+			overflow: hidden;
+		}
+
+		.course_slot_inner {
+			text-align: center;
+			width: 100%;
+			overflow: hidden;
+			display: block;
+			/*reset from inline*/
+			margin: 0;
+			/*remove defaults*/
+			padding: 0px;
+		}
+
+		.rotate_text {
+			transform: rotate(90deg) translateX(3vh);
+			transform-origin: 50% 50%;
+		}
+
+
+		@keyframes glowing {
+			0% {
+				box-shadow: 0 0 2px rgba(205, 92, 92, 0.5);
 			}
-			
-			.week_line{			
-			background:yellow;
+
+			50% {
+				box-shadow: 0 0 3px rgba(205, 92, 92, 1);
 			}
-			
-			.week_box{
-			width:7vw;
-			border:1px solid black;
+
+			100% {
+				box-shadow: 0 0 2px rgba(205, 92, 92, 0.5);
 			}
-			
-			input.switch:empty {
+		}
+
+		.month_line,
+		.date_line,
+		.week_line {
+			left: 0;
+			height: 2vh;
+			width: 100%;
+			position: absolute;
+			z-index: 0;
+			font-size: 1vh;
+		}
+
+		.month_line {
+			background: grey;
+		}
+
+		.date_line {
+			background: lime;
+		}
+
+		.week_line {
+			background: yellow;
+		}
+
+		.week_box {
+			width: 7vw;
+			border: 1px solid black;
+		}
+
+		input.switch:empty {
 			margin-left: -999px;
-			}
-			input.switch:empty ~ label {
+		}
+
+		input.switch:empty~label {
 			position: relative;
 			float: left;
 			line-height: 1.6em;
@@ -110,22 +576,25 @@
 			-moz-user-select: none;
 			-ms-user-select: none;
 			user-select: none;
-			}
-			input.switch:empty ~ label:before, input.switch:empty ~ label:after {
+		}
+
+		input.switch:empty~label:before,
+		input.switch:empty~label:after {
 			position: absolute;
 			display: block;
 			top: 0;
 			bottom: 0;
 			left: 0;
-			content:' ';
+			content: ' ';
 			width: 3.6em;
 			background-color: #c33;
 			border-radius: 0.3em;
 			box-shadow: inset 0 0.2em 0 rgba(0, 0, 0, 0.3);
 			-webkit-transition: all 100ms ease-in;
 			transition: all 100ms ease-in;
-			}
-			input.switch:empty ~ label:after {
+		}
+
+		input.switch:empty~label:after {
 			width: 1.4em;
 			top: 0.1em;
 			bottom: 0.1em;
@@ -133,345 +602,551 @@
 			background-color: #fff;
 			border-radius: 0.15em;
 			box-shadow: inset 0 -0.2em 0 rgba(0, 0, 0, 0.2);
-			}
-			input.switch:checked ~ label:before {
+		}
+
+		input.switch:checked~label:before {
 			background-color: #393;
-			}
-			input.switch:checked ~ label:after {
+		}
+
+		input.switch:checked~label:after {
 			margin-left: 2em;
-			}
-			
-			
-			
-		</style>
-		
-		
-		
-	</head>
-	<body>
-		<!-- <iframe id="viewer"></iframe> -->
-		
+		}
+	</style>
+
+
+
+</head>
+
+<body>
+
+	<!-- Trying to go with HTML5 where possible, and avoid jQuery. No technical reason, other than to see if I can
+		After I finish this, I might try redo it again with HTMX
+		JMC 150824
+
+		General Notes
+		150824: Fixed a bunch of things, but also saw a lot more that needs fixing, as is always the way.
+		Biggest fix was realising a lot of styling elements were being referenced but not defined > missing css page!
+		So I copy pasted my old work one. TODO, need to clean it out from stuff that's irrelevant, probably 80%+
+-->
+
+	<div>
 		<div>
-			<div>
-				<button onclick="year_down();">-</button>
-				<button onclick="year_up();">+</button><div id="displayed_year"></div>
-				<div onclick="draw_main();">
-					<input type="checkbox" id="stream1" name="switch1" class="switch" checked="true"/>
-					<label for="stream1">600A</label>
-				</div>
-				<div>&nbsp;</div>
-				<div onclick="draw_main();">
-					<input type="checkbox" id="stream2" name="switch2" class="switch" checked="true"/>
-					<label for="stream2">600B</label>
-				</div>
-				<div>&nbsp;</div>
-				<div onclick="draw_main();">
-					<input type="checkbox" id="stream3" name="switch3" class="switch" checked="true"/>
-					<label for="stream3">600C</label>
-				</div>
-				<div>&nbsp;</div>
-				<div onclick="draw_main();">
-					<input type="checkbox" id="stream4" name="switch4" class="switch" />
-					<label for="stream4">700ABC</label>
-				</div>
-				<div>&nbsp;</div>
-				<div onclick="draw_main();">
-					<input type="checkbox" id="stream5" name="switch5" class="switch" />
-					<label for="stream5">External</label>
-				</div>
-				<div>&nbsp;</div>
-				<div onclick="draw_main();">
-					<input type="checkbox" id="has_quiz" name="switch6" class="switch" />
-					<label for="has_quiz">Quiz</label>
-				</div>
-				
+			<button onclick="year_down();">-</button>
+			<button onclick="year_up();">+</button>
+			<div id="displayed_year"></div>
+			<div onclick="draw_main();">
+				<input type="checkbox" id="stream1" name="switch1" class="switch" checked="true" />
+				<label for="stream1">600A</label>
 			</div>
-			
+			<div>&nbsp;</div>
+			<div onclick="draw_main();">
+				<input type="checkbox" id="stream2" name="switch2" class="switch" checked="true" />
+				<label for="stream2">600B</label>
+			</div>
+			<div>&nbsp;</div>
+			<div onclick="draw_main();">
+				<input type="checkbox" id="stream3" name="switch3" class="switch" checked="true" />
+				<label for="stream3">600C</label>
+			</div>
+			<div>&nbsp;</div>
+
+
 		</div>
-		<div class="year_view container">
-			<div id="calendar"></div>
-			<div id="year"></div>			
-		</div>
-		
-	</body>
+
+	</div>
+	<div class="year_view container">
+		<div id="calendar"></div>
+		<div id="year"></div>
+	</div>
+
+</body>
+
 </html>
 
 
 
 <script>
 
-/* TODO: general tidy up
-
-	probably be able to rip out the code from schedule.js
-	C:\gitrepos\JVI_CODE\jsetc\javascript\schedule.js
-*/
-
-
-
-	var display_year;
-	var all_course_divs;
+	/* TODO: general tidy up
 	
-	window.onload = function(){
+		probably be able to rip out the code from schedule.js
+		C:\gitrepos\JVI_CODE\jsetc\javascript\schedule.js
+	*/
+
+	//Give the scope of this app, it's ok to make display_year global
+	let display_year;
+	let all_course_divs;
+
+	window.onload = function () {
 		init();
 	};
-	
-	function init(){
-	
-	var temp = new Date();
+
+	function init() {
+		//set the Overview to the current year on start up
+		const temp = new Date();
 		display_year = temp.getFullYear();
 		draw_main();
 	}
-	/*$(document).ready(function() {
-		var temp = new Date();
-		display_year = temp.getFullYear();
-		draw_main();
-	});
-	*/
-	//onresize=onload=function(){document.body.style.fontSize=window.innerWidth+"px"}
-	
-	function draw_main(){
+
+	//TODO: figure out if a total redraw is necessary each time. Probably is
+	function draw_main() {
 		document.getElementById("displayed_year").innerHTML = display_year;
 		get_year();
 	}
-	
-	function year_up(){
+
+	function year_up() {
 		display_year++;
 		draw_main();
 	}
-	
-	function year_down(){
+
+	function year_down() {
 		display_year--;
 		draw_main();
 	}
-	
-	function get_year(){
+
+	function get_year() {
 		document.getElementById('year').innerHTML = '';
-		
-		var data = null;			
 
-			//GET data from api
-			var request = new XMLHttpRequest();
-			//request.open('GET', 'https://github.com/SkerryRamble/CoursePlan/yearcourses.json' + display_year, true);
-			request.open('GET', 'https://skerryramble.github.io/CoursePlan/yearcourses.json', true);
+		const data = null;
 
-			request.onload = function() {
-				if (this.status >= 200 && this.status < 400) {
-					// Success!
-					var data = JSON.parse(this.response);
-					//console.log(data);
-					draw_year(data);
-					
-				}
-				else {
-					alert("Failed to get data from the server. Probably a network hiccough, try again.");
-				}
-			};
-			request.onerror = function() {
-				alert("There was a connection error. Check you're online, then try again.");
-			};
-			request.send();
-			//end of GET call
-		
-		
-		
-		
-		
-		
+		//GET data from api
+		const request = new XMLHttpRequest();
+		request.open('GET', 'yearcourses.json', true);
+
+		request.onload = function () {
+			if (this.status >= 200 && this.status < 400) {				// Success!
+				var data = JSON.parse(this.response);
+				draw_year(data);
+			}
+			else {
+				alert("Failed to get data from the server. Probably a network hiccough, try again.");
+			}
+		};
+		request.onerror = function () {
+			alert("There was a connection error. Check you're online, then try again.");
+		};
+		request.send();
 	}
-	
-	function draw_year(data){	
+
+	function draw_year(data) {
 		//get how many and which streams are visible, jumping out if none are
-		var stream_1 = document.getElementById('stream1').checked;
-		var stream_2 = document.getElementById('stream2').checked;
-		var stream_3 = document.getElementById('stream3').checked;
-		var stream_4 = document.getElementById('stream4').checked;
-		var stream_5 = document.getElementById('stream5').checked;		
-		var number_of_streams = stream_1 + stream_2 + stream_3 + stream_4 + stream_5;
-		
-		if (number_of_streams < 1){return;}
-		
-		var calendar_gap = 6;
-			
-		var number_of_quarters = 4;
-		var stream_height = (calendar_height - (4 * calendar_gap))/ number_of_quarters / number_of_streams;	
-		
-		var calendar_height = 96;	
+		//The original app had 5 sreams for off premises courses. I nixed those for simplicity here
+
+		const stream_1 = document.getElementById('stream1').checked;
+		const stream_2 = document.getElementById('stream2').checked;
+		const stream_3 = document.getElementById('stream3').checked;
+		const number_of_streams = stream_1 + stream_2 + stream_3;
+
+		if (number_of_streams < 1) { return; }
+
+		const calendar_gap = 6;	//An arbitrary height for the row to display the calendar dates
+
+		const number_of_quarters = 4;
+		const calendar_height = 96;
+		const stream_height = (calendar_height - (4 * calendar_gap)) / number_of_quarters / number_of_streams;
+
+
 		draw_calendar(number_of_streams, calendar_height, calendar_gap, number_of_quarters, stream_height);
-		
-		
+
+
 		var all = '';
 		var current_slot = '';
-		var day_width = 1;		
+		var day_width = 1;
 		var one_day = 1000 * 60 * 60 * 24;
 		var screen_width = 91;
-		
-		
-		var has_quiz = document.getElementById('has_quiz').checked;
-		console.log(has_quiz);
-		
-		for(slot in data){
+
+
+
+
+		for (slot in data) {
 			//check is this slot in a visible stream
 			if (
-			(data[slot].stream == 1 && stream_1) ||
-			(data[slot].stream == 2 && stream_2) ||
-			(data[slot].stream == 3 && stream_3) ||
-			(data[slot].stream == 4 && stream_4) ||
-			(data[slot].stream == 9 && stream_5)
-			){		
-				
-				if (data[slot].id != null){
+				(data[slot].stream == 1 && stream_1) ||
+				(data[slot].stream == 2 && stream_2) ||
+				(data[slot].stream == 3 && stream_3)
+			) {
+
+				if (data[slot].id != null) {
 					var date_start = new Date(data[slot].date_start);
 					var date_end = new Date(data[slot].date_end);	//need to take date_end+1
 					var day_diff = new Date(date_end - date_start);
-					var slot_width = Math.floor(day_diff/one_day) + 1;
-					var level = data[slot].stream-1;	//not so simple, stream = lecture_room_id which is not linear; we need to assign these accurately
-					if (level > 6) {level = 4;}	//account for odd indexing from sql of lecture_room_id table					
-					
+					var slot_width = Math.floor(day_diff / one_day) + 1;
+					var level = data[slot].stream - 1;	//not so simple, stream = lecture_room_id which is not linear; we need to assign these accurately
+					if (level > 6) { level = 4; }	//account for odd indexing from sql of lecture_room_id table					
+
 					var jan1 = new Date('1 January ' + display_year);
 					day_diff = new Date(date_start - jan1);
-					var slot_x = Math.floor(day_diff/one_day);
-					var slot_y = ((number_of_streams-1) * stream_height);				
-					
+					var slot_x = Math.floor(day_diff / one_day);
+					var slot_y = ((number_of_streams - 1) * stream_height);
+
 					//Calculate overshoot of right edge of calendar
-					if (slot_x + slot_width > (3 * screen_width)){
+					if (slot_x + slot_width > (3 * screen_width)) {
 						slot_x -= screen_width;
 						slot_y += (stream_height * number_of_streams) + calendar_gap;
 					}
-					if (slot_x + slot_width > (2 * screen_width)){
+					if (slot_x + slot_width > (2 * screen_width)) {
 						slot_x -= screen_width;
 						slot_y += (stream_height * number_of_streams) + calendar_gap;
 					}
-					if (slot_x + slot_width > (1 * screen_width)){
+					if (slot_x + slot_width > (1 * screen_width)) {
 						slot_x -= screen_width;
 						slot_y += (stream_height * number_of_streams) + calendar_gap;
 					}
-					
-					
+
+
 					var rotate = '';
-					if (slot_width<4) {rotate = " rotate_text"; };
+					if (slot_width < 4) { rotate = " rotate_text"; };
 					var font_size = 0.15 * slot_width;
-					
-					var highlight_quiz = '';
-					if (data[slot].setup_quiz == true && has_quiz == true) { highlight_quiz = " course_quiz_highlight"; };
-					console.log(level, stream_height, slot_y);
-					var current_slot = '<div class="course_slot' + highlight_quiz + '" style="' +
-					'font-size:' + font_size + 'em;' +
-					'width:calc(' + (slot_width * day_width) + 'vw);' +
-					'height:calc(' + stream_height + 'vh);' +
-					'left:calc(8vw + '+ slot_x + 'vw);' +
-					'top:calc(5vh + ' + slot_y + 'vh);' +
-					'background-color:' + data[slot].background_main + ';' +
-					'color:' + data[slot].foreground + ';' +
-					'" data-myattribute="' + data[slot].id +
-					'"><div class="course_slot_inner' + rotate + '">' + data[slot].code + ' - ' + data[slot].po + '</div></div>';
-					
+
+
+					var current_slot = '<div class="course_slot' + '" style="' +
+						'font-size:' + font_size + 'em;' +
+						'width:calc(' + (slot_width * day_width) + 'vw);' +
+						'height:calc(' + stream_height + 'vh);' +
+						'left:calc(8vw + ' + slot_x + 'vw);' +
+						'top:calc(5vh + ' + slot_y + 'vh);' +
+						'background-color:' + data[slot].background_main + ';' +
+						'color:' + data[slot].foreground + ';' +
+						'" data-myattribute="' + data[slot].id +
+						'"><div class="course_slot_inner' + rotate + '">' + data[slot].code + ' - ' + data[slot].po + '</div></div>';
+
 					all += current_slot;
 				}
 			}
 		}
-		
+
 		//TODO: the response delay prevents instant drawing, either find a method to account for delay then draw, or revert back to the older flickery method
-		
+
 		document.getElementById('year').innerHTML += all;
-		
-		var entire_class = document.getElementsByClassName('course_slot');
-		for (var i=0;i<entire_class.length;i++){
-			entire_class[i].addEventListener('click', myFunction, false);			
-		}		
+
+		//This bit below was suppsed to allow admin to 'zoom' in to the course admin module, but I don't need that here.
+		// var entire_class = document.getElementsByClassName('course_slot');
+		// for (var i = 0; i < entire_class.length; i++) {
+		// 	entire_class[i].addEventListener('click', myFunction, false);
+		// }
 	}
-	
-	function get_stream_test() {
-		var a,b,c;
-		
-		var xhttp;
-		
-		xhttp = new XMLHttpRequest();
-		xhttp.onreadystatechange = function() {
-			if (this.readyState == 4 && this.status == 200) {
-				a = this.responseText;
-				console.log(a,1);
-			}
-		};
-		xhttp.open("GET", 'api/stream_c/' + display_year, true);
-		xhttp.send();
-		
-		console.log(a,2);
-		draw_stream(a,0);
+
+	Date.prototype.getWeek = function () {
+		//returns the week number of the year. Not interested in any ISO definitions, like working week, v calendar week, etc.
+		const d = new Date(+this);
+		d.setHours(0, 0, 0, 0);
+		d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+		return Math.ceil((((d - new Date(d.getFullYear(), 0, 1)) / 8.64e7) + 1) / 7);	//8.64e7 is one day in milliseconds
 	}
-	
-	
-	function draw_calendar(number_of_streams, calendar_height, calendar_gap, number_of_quarters, stream_height){
+
+	function draw_calendar(number_of_streams, calendar_height, calendar_gap, number_of_quarters, stream_height) {
 		//populate the month/week/date lines with their content
 		//need to calculate the '1st' week of the year, week_position_1 can never have wed=5th jan which constrains our choice		
-				
-		var x_pos_increment = 24;
-		var calendar = document.getElementById('calendar');
-		var inner_calendar = '';
-		var x_pos = 0;
-		var even_month_colour = "#ffeebb";
-		var odd_month_colour = "#ddccaa";
-		for (var i=1;i<5;i++){
-			var month_colour = even_month_colour;
-			if (i %2 ==0){month_colour = odd_month_colour;}
+
+		const y_pos_increment = 24;
+		const calendar = document.getElementById('calendar');
+		let inner_calendar = '';
+		let y_pos = 0;
+		const even_month_colour = "#ffeebb";
+		const odd_month_colour = "#ddccaa";
+		let month_colour = [even_month_colour, odd_month_colour];	//make an array to hold the alternating colours, then mod2 it as needed
+
+		const first_quarter = 1, last_quarter = 4;
+
+		for (let i = first_quarter; i <= last_quarter; i++) {
 			
-			inner_calendar +='<div id="months_quarter_' + i + '" class="month_line" style="top:' + x_pos + 'vh;background:' + month_colour + '"></div>';
-		
-			inner_calendar +='<div id="weeks_quarter_' + i + '" class="week_line" style="top:' + (2 + x_pos) + 'vh;"></div>';
-		
-			inner_calendar +='<div id="dates_quarter_'+ i + '" class="date_line" style="top:' + (4 + x_pos) + 'vh;"></div>';
-		
-			for(var j=0;j<number_of_streams;j++){
-				inner_calendar +='<div class="streams" style="top:' + ((calendar_gap + x_pos) + (stream_height * j)) + 'vh;height:' + stream_height + 'vh;"></div>';
+
+			inner_calendar += '<div id="months_quarter_' + i + '" class="month_line" style="top:' + y_pos + 'vh;background:' + month_colour[i % 2] + '"></div>';
+
+			inner_calendar += '<div id="weeks_quarter_' + i + '" class="week_line" style="top:' + (2 + y_pos) + 'vh;"></div>';
+
+			inner_calendar += '<div id="dates_quarter_' + i + '" class="date_line" style="top:' + (4 + y_pos) + 'vh;"></div>';
+
+			for (let j = 0; j < number_of_streams; j++) {
+				inner_calendar += '<div class="streams" style="top:' + ((calendar_gap + y_pos) + (stream_height * j)) + 'vh;height:' + stream_height + 'vh;"></div>';
 			}
-		
-		
-			x_pos += x_pos_increment;
+
+
+			y_pos += y_pos_increment;
 		}
-		var calendar = document.getElementById('calendar');
+
 		calendar.innerHTML = inner_calendar;
-		
-		var wks_q1, wks_q2, wks_q3, wks_q4;
-		for (var i=1;i<=13;i++){
-			
-		}		
+
+		//TODO: think of a better name for date_holder
+
+		let date_holder = calculate_firstday();
+
+		draw_weeks_labels(date_holder);
+
+		draw_dates_labels(date_holder);
+
 	}
-	
-	
-	var myFunction = function() {
-		var attribute = this.getAttribute("data-myattribute");
-		//alert("You chose course with id=" + attribute);
-		
-		
-		//window.open("file://///Z:/","","width=960,height=960");
-		//window.open();
-		
-		
-		
-		var obj_url = window.URL.createObjectURL("file://S:/test.pdf");
-var iframe = document.getElementById('viewer');
-iframe.setAttribute('src', obj_url);
-window.URL.revokeObjectURL(obj_url);
-	};
-	
-	//todo, can't open a file from code, best we can do is provide a URL to copy-paste for the user to the file_reader and do that. maybe there's a way to 'magic' the url into the filereader
-	function readSingleFile(e) {
-  var file = e.target.files[0];
-  if (!file) {
-    return;
-  }
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    var contents = e.target.result;
-    displayContents(contents);
-  };
-  reader.readAsText(file);
+
+	function calculate_firstday(){
+		const one_day = 1000 * 60 * 60 * 24; //Duration of a single day in javascript milliseconds
+
+		//We're trying to get the first Thursday of the year that has it's Monday in January as well. There'S a simpler way to do this I'm sure...
+		const jan_1st = new Date('1 January ' + display_year);
+		const jan_1st_day = jan_1st.getDay();
+		const days_difference = jan_1st - (6 * one_day) - (jan_1st_day * one_day);
+		const year_first_day = new Date(days_difference);
+		let date_counter = year_first_day;
+
+		if (year_first_day.getDate() > 16 && year_first_day.getDate() < 27) {
+			date_counter.setDate(date_counter.getDate() + 7);
+		}
+		if (year_first_day.getDate() < 15 && year_first_day.getDate() > 2) {
+			date_counter.setDate(date_counter.getDate() - 7);
+		}
+
+		return date_counter;
+	}
+
+	function draw_weeks_labels(date_holder) {
+
+		//Set these to the first day of the year individually, otherwise they overwrite each other and it looks embarassing
+		const week_counter_q1 = new Date(date_holder);
+		const week_counter_q2 = new Date(date_holder);
+		const week_counter_q3 = new Date(date_holder);
+		const week_counter_q4 = new Date(date_holder);
+
+		week_counter_q1.setDate(date_holder.getDate() + 3);						//First Thursday of a full week
+		week_counter_q2.setDate(date_holder.getDate() + 3 + 91);				//First Thursday, 3 months later
+		week_counter_q3.setDate(date_holder.getDate() + 3 + 91 + 91);			//etc...
+		week_counter_q4.setDate(date_holder.getDate() + 3 + 91 + 91 + 91);
+		const weeks_q1 = document.getElementById("weeks_quarter_1");
+		const weeks_q2 = document.getElementById("weeks_quarter_2");
+		const weeks_q3 = document.getElementById("weeks_quarter_3");
+		const weeks_q4 = document.getElementById("weeks_quarter_4");
+		const week_bg_color = ['whitesmoke', 'rgb(224,224,216)'];				//altnerating colours for the weeks, mod2 later
+
+		//Loop through 12 weeks of the quarter, attaching relevant styles and content to each div created per week
+		//We can do each quarter in parallel, why not
+		for (let i = 0; i <= 12; i++) {
+			const dc1 = document.createElement("div");
+			dc1.innerHTML = week_counter_q1.getWeek();
+			dc1.className = "week_style";
+			dc1.style.cssText = "left:" + (i * 7) + "vw;background:" + week_bg_color[i % 2] + ";";
+			weeks_q1.appendChild(dc1);
+			week_counter_q1.setDate(week_counter_q1.getDate() + 7);
+
+			const dc2 = document.createElement("div");
+			dc2.innerHTML = week_counter_q2.getWeek();
+			dc2.className = "week_style";
+			dc2.style.cssText = "left:" + (i * 7) + "vw;background:" + week_bg_color[i % 2] + ";";
+			weeks_q2.appendChild(dc2);
+			week_counter_q2.setDate(week_counter_q2.getDate() + 7);
+
+			const dc3 = document.createElement("div");
+			dc3.innerHTML = week_counter_q3.getWeek();
+			dc3.className = "week_style";
+			dc3.style.cssText = "left:" + (i * 7) + "vw;background:" + week_bg_color[i % 2] + ";";
+			weeks_q3.appendChild(dc3);
+			week_counter_q3.setDate(week_counter_q3.getDate() + 7);
+
+			const dc4 = document.createElement("div");
+			dc4.innerHTML = week_counter_q4.getWeek();
+			dc4.className = "week_style";
+			dc4.style.cssText = "left:" + (i * 7) + "vw;background:" + week_bg_color[i % 2] + ";";
+			weeks_q4.appendChild(dc4);
+			week_counter_q4.setDate(week_counter_q4.getDate() + 7);
+		}
+
+	}
+
+
+	function getMonthDate(d) {
+	var monthNames = [
+		"January", "February", "March",
+		"April", "May", "June", "July",
+		"August", "September", "October",
+		"November", "December"
+	];
+	var date = new Date(d);
+	var monthIndex = date.getMonth();
+	return monthNames[monthIndex];
 }
 
-function displayContents(contents) {
-  var element = document.getElementById('file-content');
-  element.innerHTML = contents;
-}
+	function draw_dates_labels(date_holder) {
+
+		const even_month_colour = "#ffeebb";
+		const odd_month_colour = "#ddccaa";
+		let month_colour = [even_month_colour, odd_month_colour];	//make an array to hold the alternating colours, then mod2 it as needed
+
+		const date_counter_q1 = new Date(date_holder);
+		const date_counter_q2 = new Date(date_holder);
+		const date_counter_q3 = new Date(date_holder);
+		const date_counter_q4 = new Date(date_holder);
+		date_counter_q2.setDate(date_holder.getDate() + 91);
+		date_counter_q3.setDate(date_holder.getDate() + 91 + 91);
+		date_counter_q4.setDate(date_holder.getDate() + 91 + 91 + 91);
+
+		//loop 1-91 to populate the dates in each quarter
+		const dates_q1 = document.getElementById("dates_quarter_1");
+		const dates_q2 = document.getElementById("dates_quarter_2");
+		const dates_q3 = document.getElementById("dates_quarter_3");
+		const dates_q4 = document.getElementById("dates_quarter_4");
+		//we'll add months in here too; when we reach day 15 we add a month name to the month div
+		//and a month dividing line when we read day 1
+		const months_q1 = document.getElementById("months_quarter_1");
+		const months_q2 = document.getElementById("months_quarter_2");
+		const months_q3 = document.getElementById("months_quarter_3");
+		const months_q4 = document.getElementById("months_quarter_4");
+
+		for (let i = 0; i < 91; i++) {		//91 for days in quarter (3 months)
+
+			const weekend_style = "";
+			if (date_counter_q1.getDay() == 0 || date_counter_q1.getDay() == 6) {
+				const wknd = document.createElement("div");
+				wknd.style.cssText = "left:" + i + "vw;";
+				wknd.className = "date_style weekend_class";
+				dates_q1.appendChild(wknd);
+			}
+			
+			const dc1 = document.createElement("div");
+			dc1.innerHTML = date_counter_q1.getDate();
+			dc1.className = "date_style" + weekend_style;
+			dc1.style.cssText = "left:" + i + "vw;";
+			dc1.title = "Tooltip Test";
+			dates_q1.appendChild(dc1);
+
+			const dc2 = document.createElement("div");
+			dc2.innerHTML = date_counter_q2.getDate();
+			dc2.className = "date_style" + weekend_style;
+			dc2.style.cssText = "left:" + i + "vw;";
+			dc2.title = '';
+			dates_q2.appendChild(dc2);
+
+			const dc3 = document.createElement("div");
+			dc3.innerHTML = date_counter_q3.getDate();
+			dc3.className = "date_style" + weekend_style;
+			dc3.style.cssText = "left:" + i + "vw;";
+			dc3.title = '';
+			dates_q3.appendChild(dc3);
+
+			const dc4 = document.createElement("div");
+			dc4.innerHTML = date_counter_q4.getDate();
+			dc4.className = "date_style" + weekend_style;
+			dc4.style.cssText = "left:" + i + "vw;";
+			dc4.title = '';
+			dates_q4.appendChild(dc4);
 
 
+			//TODO & BUG: the stuff below is garish. Find a more elegant solution
+			//It also doesn'T work right, some month bg colours bleed over, etc.
+
+			//check if date = 1 or 15 and draw the divider or month name respectively if somehow
+			if (date_counter_q1.getDate() == 15) {	//add month name
+				const month_name = document.createElement("div");
+				month_name.innerHTML = getMonthDate(date_counter_q1);
+				month_name.className = "month_style";
+				month_name.style.cssText = "left:" + i + "vw;";
+				months_q1.appendChild(month_name);
+			} if (date_counter_q1.getDate() == 1) {	//add left border and colour the element
+				const month_name = document.createElement("div");
+				month_colour = even_month_colour;
+				const colour_toggle = date_counter_q1.getMonth() % 2;
+				if (colour_toggle == 1) { month_colour = odd_month_colour; }
+				month_name.className = "month_border";	//add a left border
+				month_name.style.cssText = "left:" + (i) + "vw;width:inherit;background:" + month_colour;
+				months_q1.appendChild(month_name);
+			}
+
+			if (date_counter_q2.getDate() == 15) {
+				const month_name = document.createElement("div");
+				month_name.innerHTML = getMonthDate(date_counter_q2);
+				month_name.className = "month_style";
+				month_name.style.cssText = "left:" + i + "vw;";
+				months_q2.appendChild(month_name);
+			}
+			if (date_counter_q2.getDate() == 1) {
+				const month_name = document.createElement("div");
+				month_colour = even_month_colour;
+				const colour_toggle = date_counter_q2.getMonth() % 2;
+				if (colour_toggle == 1) { month_colour = odd_month_colour; }
+				month_name.className = "month_border";	//add a left border
+				month_name.style.cssText = "left:" + (i) + "vw;width:inherit;background:" + month_colour;
+				months_q2.appendChild(month_name);
+			}
+
+			if (date_counter_q3.getDate() == 15) {
+				const month_name = document.createElement("div");
+				month_name.innerHTML = getMonthDate(date_counter_q3);
+				month_name.className = "month_style";
+				month_name.style.cssText = "left:" + i + "vw;";
+				months_q3.appendChild(month_name);
+			}
+			if (date_counter_q3.getDate() == 1) {
+				const month_name = document.createElement("div");
+				month_colour = even_month_colour;
+				const colour_toggle = date_counter_q3.getMonth() % 2;
+				if (colour_toggle == 1) { month_colour = odd_month_colour; }
+				month_name.className = "month_border";	//add a left border
+				month_name.style.cssText = "left:" + (i) + "vw;width:inherit;background:" + month_colour;
+				months_q3.appendChild(month_name);
+			}
+
+			if (date_counter_q4.getDate() == 15) {
+				const month_name = document.createElement("div");
+				month_name.innerHTML = getMonthDate(date_counter_q4);
+				month_name.className = "month_style";
+				month_name.style.cssText = "left:" + i + "vw;";
+				months_q4.appendChild(month_name);
+			}
+			if (date_counter_q4.getDate() == 1) {
+				const month_name = document.createElement("div");
+				month_colour = even_month_colour;
+				const colour_toggle = date_counter_q4.getMonth() % 2;
+				if (colour_toggle == 1) { month_colour = odd_month_colour; }
+				month_name.className = "month_border";	//add a left border
+				month_name.style.cssText = "left:" + (i) + "vw;width:inherit;background:" + month_colour;
+				months_q4.appendChild(month_name);
+			}
+
+			date_counter_q1.setDate(date_counter_q1.getDate() + 1);
+			date_counter_q2.setDate(date_counter_q2.getDate() + 1);
+			date_counter_q3.setDate(date_counter_q3.getDate() + 1);
+			date_counter_q4.setDate(date_counter_q4.getDate() + 1);
+
+		}
+
+
+	}
+
+
+	/*
 	
+			//Highlight today
+			//BUG: after 4pm(ish) it shows tomorrow instead
+			var screen_width = 91;
+			var today_date = new Date();
+			//console.log(today_date);
+			var today_offset = new Date(today_date - date_counter)
+			//console.log(today_offset);
+			var today_x = Math.round(today_offset / one_day);
+			//console.log(today_x);
+			var today_y = 0;
+			//Calculate overshoot of right edge of calendar
+			if (today_x >= (3 * screen_width)) {
+				today_x -= screen_width;
+				today_y += (stream_height * number_of_streams) + calendar_gap;
+			}
+			if (today_x >= (2 * screen_width)) {
+				today_x -= screen_width;
+				today_y += (stream_height * number_of_streams) + calendar_gap;
+			}
+			if (today_x >= (1 * screen_width)) {
+				today_x -= screen_width;
+				today_y += (stream_height * number_of_streams) + calendar_gap;
+			}
+			var today_el = document.createElement("div");
+			today_el.className = " dormant_highlight_today";
+			today_el.style.cssText = "position:absolute;left:" + today_x + "vw;top:" + today_y + "vh;width:1vw;height:" + (calendar_gap + (number_of_streams * stream_height)) + "vh;";
+	
+			document.getElementById('year').appendChild(today_el);
+	
+	
+	
+			var wks_q1, wks_q2, wks_q3, wks_q4;
+			for (var i = 1; i <= 13; i++) {
+	
+			}
+	
+			*/
+
 </script>
