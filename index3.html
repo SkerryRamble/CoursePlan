@@ -196,7 +196,18 @@
 	</body>
 </html>
 
+
+
 <script>
+
+/* TODO: general tidy up
+
+	probably be able to rip out the code from schedule.js
+	C:\gitrepos\JVI_CODE\jsetc\javascript\schedule.js
+*/
+
+
+
 	var display_year;
 	var all_course_divs;
 	
@@ -279,8 +290,13 @@
 		
 		if (number_of_streams < 1){return;}
 		
+		var calendar_gap = 6;
+			
+		var number_of_quarters = 4;
+		var stream_height = (calendar_height - (4 * calendar_gap))/ number_of_quarters / number_of_streams;	
+		
 		var calendar_height = 96;	
-		draw_calendar(number_of_streams, calendar_height);
+		draw_calendar(number_of_streams, calendar_height, calendar_gap, number_of_quarters, stream_height);
 		
 		
 		var all = '';
@@ -288,10 +304,7 @@
 		var day_width = 1;		
 		var one_day = 1000 * 60 * 60 * 24;
 		var screen_width = 91;
-		var calendar_gap = 6;
-			
-		var number_of_quarters = 4;
-		var stream_height = (calendar_height - (4 * calendar_gap))/ number_of_quarters / number_of_streams;	
+		
 		
 		var has_quiz = document.getElementById('has_quiz').checked;
 		console.log(has_quiz);
@@ -387,18 +400,31 @@
 	}
 	
 	
-	function draw_calendar(number_of_streams, calendar_height){
+	function draw_calendar(number_of_streams, calendar_height, calendar_gap, number_of_quarters, stream_height){
 		//populate the month/week/date lines with their content
-		//need to calculate the '1st' week of the year, week_position_1 can never have wed=5th jan which constrains our choice
+		//need to calculate the '1st' week of the year, week_position_1 can never have wed=5th jan which constrains our choice		
 				
 		var x_pos_increment = 24;
 		var calendar = document.getElementById('calendar');
 		var inner_calendar = '';
 		var x_pos = 0;
+		var even_month_colour = "#ffeebb";
+		var odd_month_colour = "#ddccaa";
 		for (var i=1;i<5;i++){
-			inner_calendar +='<div class="month_line" style="top:' + x_pos + 'vh;">months</div>';
-			inner_calendar +='<div class="week_line" style="top:' + (2 + x_pos) + 'vh;">weeks</div>';
-			inner_calendar +='<div class="date_line" style="top:' + (4 + x_pos) + 'vh;">dates</div>';
+			var month_colour = even_month_colour;
+			if (i %2 ==0){month_colour = odd_month_colour;}
+			
+			inner_calendar +='<div id="months_quarter_' + i + '" class="month_line" style="top:' + x_pos + 'vh;background:' + month_colour + '"></div>';
+		
+			inner_calendar +='<div id="weeks_quarter_' + i + '" class="week_line" style="top:' + (2 + x_pos) + 'vh;"></div>';
+		
+			inner_calendar +='<div id="dates_quarter_'+ i + '" class="date_line" style="top:' + (4 + x_pos) + 'vh;"></div>';
+		
+			for(var j=0;j<number_of_streams;j++){
+				inner_calendar +='<div class="streams" style="top:' + ((calendar_gap + x_pos) + (stream_height * j)) + 'vh;height:' + stream_height + 'vh;"></div>';
+			}
+		
+		
 			x_pos += x_pos_increment;
 		}
 		var calendar = document.getElementById('calendar');

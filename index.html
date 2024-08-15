@@ -3,83 +3,69 @@
 <title>Course Plan Overview</title>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="courseplan.css">
 <script src="jquery-3.7.1.min.js"></script>
 <script>
-    // Side navigation
-    function open_sidenav() {
-        var x = document.getElementById("mySidenav");
-        x.style.width = "100%";
-        x.style.textAlign = "center";
-        x.style.fontSize = "50px";
-        x.style.paddingTop = "10%";
+
+/*
+    TODOs: Search TODOs scattered throughout
+
+    * Add a sidenav and set it up to select different course years
+    * Get a larger JSON db made up with more, and fuller years
+    * General tidy up of formatting
+    * Check for visual consistency across various screen sizes
+        Probably need to bring in the @media stuff
+
+*/
+
+    //Course details popup modal
+    function show_course_details(data) {
+        const x = document.getElementById("course_details_modal");
         x.style.display = "block";
-    }
-
-    function close_sidenav() {
-        document.getElementById("mySidenav").style.display = "none";
-    }
-	
-	function show_course_details(data) {
-
-        var x = document.getElementById("course_details_modal");
-        x.style.width = "100%";
-        x.style.textAlign = "center";
-        x.style.paddingTop = "10%";
-        x.style.display = "block";
-
-        document.getElementById("course_details_header").innerHTML = data.code + " : " + data.po;
-        document.getElementById("course_details_p_pass").innerHTML = "P-Pass: " + data.p_password;
-        document.getElementById("course_details_f_pass").innerHTML = "F-Pass: " + data.f_password;
+        x.style.padding = "10%";
+        document.getElementById("course_details_header").innerHTML = data.code + " : " + data.name;
+        document.getElementById("course_details_s_pass").innerHTML = "Student Password: " + data.s_password;
+        document.getElementById("course_details_f_pass").innerHTML = "Faculty Password: " + data.f_password;
         document.getElementById("course_details_office").innerHTML = "Office: " + data.office;
+        document.getElementById("course_details_instructor").innerHTML = "Instructor: " + data.instructor;
         document.getElementById("course_details_language").innerHTML = "Interpreted: " + data.extra_languages;
-
-    }    
-
-    function close_course_details() {
-        document.getElementById("course_details_modal").style.display = "none";
     }
 
     function shortformatDate(d) {
-        var monthNames = [
-            "Jan", "Feb", "Mar",
-            "Apr", "May", "Jun", "Jul",
-            "Aug", "Sep", "Oct",
-            "Nov", "Dec"
+        const monthNames = [
+            "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
         ];
 
-        //ensure date is correct format coming from SQL
-        var date = new Date(d);
-
-        var day = date.getDate();
-
+        //ensure date is correct format coming from DB, and add some padding
+        const date = new Date(d);
+        let day = date.getDate();
         if (day < 10) { day = '0' + day; }
-
-        var monthIndex = date.getMonth();
-
+        const monthIndex = date.getMonth();
         return day + ' ' + monthNames[monthIndex];
     }
-	
-	$(document).ready(function get_courses() {
-        var data = null;
-        $.getJSON('https://skerryramble.github.io/CoursePlan/courses.json')
+
+    //main call to get JSON data and pass it through to eventually populate the course_list DOM element
+    $(document).ready(function get_courses() {
+        const data = null;
+        // $.getJSON('https://skerryramble.github.io/CoursePlan/courses.json')
+        $.getJSON('../courses.json')
             .done(function (data) { listCourses(data); })
             .fail(function (jqXHR, textStatus, err) { window.alert('Error: ' + err); });
     });
 
     function listCourses(data) {
-
-        var x = null;
-        var ul = document.createElement("ul");
-        ul.className = "cp-ul cp-card-4 cp-responsive cp-striped cp-bordered cp-hoverable";
+        let x = null;
+        const ul = document.createElement("ul");
+        ul.className = "no-bullets striped";
 
         for (x in data) {
-            //create a list element and add the visual details, and an onclick to pass more details to the modal pop-up
-            var li = document.createElement("li");
+            //create a list element and add the course data
+            const li = document.createElement("li");
             li.innerHTML =
                 data[x].code + ' : ' + shortformatDate(data[x].date_start)
                 + ' - ' + shortformatDate(data[x].date_end);
-            var this_data = data[x];
+            const this_data = data[x];
+
+            //Add an onclick to let us click through and pass data to the modal
             li.onclick = (function (this_data) {
                 return function () {
                     show_course_details(this_data);
@@ -92,92 +78,141 @@
         document.getElementById("course_list").appendChild(ul);
     }
 
-    function tableCourses(data) {
-
-        var x, txt = "<table class='cp-table cp-card-4 cp-responsive cp-striped cp-bordered cp-hoverable'>";
-        txt += "<thead><tr class='cp-theme'><th>Code</th><th>Name</th><th>Starts</th><th>Ends</th></tr>";
-        for (x in data) {
-            txt += "<tr>";
-            txt += "<td>" + data[x].code + "</td>";
-            txt += "<td>" + data[x].name + "</td>";
-            txt += "<td>" + formatDate(data[x].date_start) + "</td>";
-            txt += "<td>" + formatDate(data[x].date_end) + "</td>";
-            txt += "</tr>";
-        }
-        txt += "</table>";
-
-        document.getElementById("course_list").innerHTML = txt;
+</script>
+<style>
+    ul.no-bullets {
+        list-style-type: none;
+        line-height: 1.5em;
+        padding: 2em;
     }
 
-</script>
+    ul.striped li:nth-child(odd) {
+        background-color: #f2f2f2;
+    }
 
-<body>
+    ul.striped li:nth-child(even) {
+        background-color: #e0e0e0;
+    }
 
-    <!-- Side Navigation -->
-    <nav class="cp-sidenav cp-white cp-xlarge cp-card-2 cp-animate-left" style="display:none" id="mySidenav">
-        <h1 class="cp-text-teal cp-xlarge">Side Navigation</h1>
-        <a href="javascript:void(0)" onclick="close_sidenav()" class="cp-closenav cp-text-theme cp-xlarge">X</a>
-        <a href="javascript:void(0)" class="cp-xlarge">Empty Link</a>
-        <a href="http://www.watching-grass-grow.com/about.html" class="cp-xlarge">Working Link</a>
-    </nav>
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0, 0, 0);
+        background-color: rgba(0, 0, 0, 0.4);
+        text-align: center;
+        font-size: larger;
+    }
 
+    .modal-content {
+        background-color: #fefefe;
+        width: 80%;
+        line-height: 1.5em;
+    }
+
+    .theme-2 {
+        color: #fff !important;
+        background-color: steelblue !important
+    }
+
+    .theme {
+        color: #fff !important;
+        background-color: #144d8d !important
+    }
+
+    .container {
+        padding: 1em
+    }
+
+    .footman {
+        text-align: right;
+        font-size: smaller;
+        padding: 0.5em;
+        padding-right: 1.5em;
+    }
+
+    .header {
+        font-size: larger;
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+    }
+
+    .card {
+        box-shadow: 0 0.1rem 0.25rem 0 rgba(0, 0, 0, 0.16), 0 0.1rem 0.75rem 0 rgba(0, 0, 0, 0.12) !important
+    }
+
+    .truetype-font {
+        font-family: "Consolas";
+    }
+
+    /* Animations */
+    .animate-left {
+        position: relative;
+        -webkit-animation: animateleft 0.25s;
+        animation: animateleft 0.25s
+    }
+
+    @-webkit-keyframes animateleft {
+        from {
+            left: -300px;
+            opacity: 0
+        }
+
+        to {
+            left: 0;
+            opacity: 1
+        }
+    }
+
+    @keyframes animateleft {
+        from {
+            left: -300px;
+            opacity: 0
+        }
+
+        to {
+            left: 0;
+            opacity: 1
+        }
+    }
+</style>
+
+<body style="margin:0;">
     <!-- Header -->
-    <header class="cp-theme cp-row-padding cp-slim cp-card-2 cp-topnav" id="myHeader">
-        <div class="cp-col">
-            <div class="cp-col s2 cp-left-align"><span onclick="open_sidenav()" class="cp-large cp-opennav">=</span></div>
-            <div class="cp-col s8 cp-center">CoursePlan</div>
-            <div class="cp-col s2 cp-right-align cp-hover-light-blue cp-right" onclick="document.getElementById('id01').style.display='block'" style="font-weight:90;">HELP</div>
-        </div>
-    </header>
+    <header class="theme container header" id="myHeader">Course Plan for 2022</header>
 
     <!-- Modal/Pop up Course Details -->
-    <div id="course_details_modal" class="cp-modal cp-container">
-        <div class="cp-modal-content cp-card-8 cp-animate-left">
-            <header class="cp-container cp-theme-l1">
-                <span onclick="document.getElementById('course_details_modal').style.display='none'" class="cp-closebtn">X</span>
-                <h4 id="course_details_header"></h4>
-            </header>
-            <div class="cp-padding cp-card-2">
+    <div id="course_details_modal" class="modal container">
+        <div class="modal-content card animate-left">
+            <script>
+                const thisModal = document.getElementById('course_details_modal');
+                window.onclick = function (event) {
+                    if (event.target == thisModal) {
+                        thisModal.style.display = "none";
+                        //TODO: add a fade backwards anim on close
+                    }
+                } 
+            </script>
+
+            <div class="card truetype-font">
                 <!--TODO: as a nicer grid-->
-                <div class="cp-col m4" id="course_details_p_pass"></div>
-                <div class="cp-col m4" id="course_details_f_pass"></div>
+                <div class="container theme-2" id="course_details_header"></div>
+                <div id="course_details_s_pass"></div>
+                <div id="course_details_f_pass"></div>
                 <div id="course_details_lecture"></div>
                 <div id="course_details_office"></div>
                 <div id="course_details_language"></div>
-                <div id="course_details_po"></div>
+                <div id="course_details_instructor"></div>
+                <div class="theme-2 footman">The Footman</div>
             </div>
-            <footer class="cp-container cp-theme-l1">
-                <p>The Footman</p>
-            </footer>
         </div>
     </div>
 
-
-    <!-- Modal/Pop up help dialog -->
-    <div id="id01" class="cp-modal">
-        <div class="cp-modal-content cp-card-8 cp-animate-top">
-            <header class="cp-container cp-theme-l1">
-                <span onclick="document.getElementById('id01').style.display='none'" class="cp-closebtn">X</span>
-                <h4>Course Schedule Viewer</h4>
-            </header>
-            <div class="cp-padding">
-                <ol>
-                    <li>Only ongoing and upcoming courses are shown</li>
-                    <li>Tap a course to get a pop-up showing more context relevant info for that course</li>
-                    <li>The = at the top left has more options</li>
-                    <li>Contact IT if you have any feedback</li>
-                </ol>
-            </div>
-            <footer class="cp-container cp-theme-l1">
-                <p>The Footman</p>
-            </footer>
-        </div>
-    </div>
-
-    <div id="search_courses" class="cp-animate-opacity">
-        <div class="cp-third cp-truetype-font cp-large">
-            <div id="course_list"></div>
-        </div>
-    </div>
+    <div class="truetype-font" id="course_list"></div>
 </body>
+
 </html>
