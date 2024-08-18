@@ -69,9 +69,7 @@
 
 		.week_style {
 			width: 7vw;
-			height: 1vh;
-			line-height: 1vh;
-			font-size: 0.5vw;
+
 			font-family: sans-serif;
 			position: absolute;
 			border-left: 0.01vw solid black;
@@ -82,8 +80,7 @@
 
 		.date_style {
 			width: 1vw;
-			height: 1vh;
-			line-height: 1vh;
+
 			font-size: 0.5vw;
 			font-family: sans-serif;
 			position: absolute;
@@ -96,8 +93,8 @@
 
 		.month_border {
 			width: 1vw;
-			height: 1vh;
-			line-height: 1vh;
+			height: 2vh;
+			line-height: 2vh;
 			font-size: 0.5vw;
 			font-family: sans-serif;
 			position: absolute;
@@ -109,9 +106,8 @@
 
 		.month_style {
 			/* width:1vw; */
-			height: 1vh;
-			line-height: 1vh;
-			font-size: 0.5vw;
+
+			/* font-size: 0.5vw; */
 			font-family: sans-serif;
 			position: absolute;
 			/* border-left:0.01vw solid black; */
@@ -159,7 +155,7 @@
 			color: black;
 		}
 
-		.course_slot {
+		/* .course_slot {
 			box-sizing: border-box;
 			position: absolute;
 			border: 0.01vw solid black;
@@ -170,7 +166,8 @@
 			padding: 0px;
 			margin: 0px;
 			cursor: -webkit-zoom-in;
-		}
+			line-height: 3vh;
+		} */
 
 		.course_slot:hover {
 			animation: zooming .2s;
@@ -500,6 +497,7 @@
 			cursor: -webkit-zoom-in;
 			z-index: 2;
 			overflow: hidden;
+			line-height: 3vh;
 		}
 
 		.course_slot_inner {
@@ -649,33 +647,35 @@
 				<label for="stream3">600C</label>
 			</div>
 			<div>&nbsp;</div>
-
-
 		</div>
-
 	</div>
 	<div class="year_view container">
 		<div id="calendar"></div>
 		<div id="year"></div>
 	</div>
-
 </body>
 
 </html>
 
-
-
 <script>
 
-	/* TODO: general tidy up
+
+	/* TODO: things to be done, not bugs
+		BUG: identified problem needs to be fixed
+		WISH: isn'T broken but too badly written and should be fixed given time
 	
-		probably be able to rip out the code from schedule.js
-		C:\gitrepos\JVI_CODE\jsetc\javascript\schedule.js
+		TODO: general tidy up
+		
+		BUGs: draw level for course streams is bonkers
+		i added courses for 2023 as well, but they are drawn in the wrong date slots. Picasso computer quote springs to mind
+		Whoops! I added them to the same file. I need to break them in to 2 files, one per year and bring back the api calls ability to handle that
+		Also, the first_day thing needs to be called by draw_slots. I forgot to add it there too.
+		Ah, the pitfalls of copy-paste
+
 	*/
 
-	//Give the scope of this app, it's ok to make display_year global
+	//Given the scope of this app, it's ok to make display_year global
 	let display_year;
-	let all_course_divs;
 
 	window.onload = function () {
 		init();
@@ -684,11 +684,10 @@
 	function init() {
 		//set the Overview to the current year on start up
 		const temp = new Date();
-		display_year = temp.getFullYear();
+		display_year = 2022; //temp.getFullYear();
 		draw_main();
 	}
-
-	//TODO: figure out if a total redraw is necessary each time. Probably is
+	
 	function draw_main() {
 		document.getElementById("displayed_year").innerHTML = display_year;
 		get_year();
@@ -711,12 +710,12 @@
 
 		//GET data from api
 		const request = new XMLHttpRequest();
-		request.open('GET', 'yearcourses.json', true);
+		request.open('GET', 'yearcourses_' + display_year + '.json', true);	//TODO: add display_year suffix
 
 		request.onload = function () {
 			if (this.status >= 200 && this.status < 400) {				// Success!
 				var data = JSON.parse(this.response);
-				draw_year(data);
+				draw_everything(data);
 			}
 			else {
 				alert("Failed to get data from the server. Probably a network hiccough, try again.");
@@ -728,37 +727,48 @@
 		request.send();
 	}
 
-	function draw_year(data) {
+	function draw_everything(data) {
 		//get how many and which streams are visible, jumping out if none are
-		//The original app had 5 sreams for off premises courses. I nixed those for simplicity here
+		//The original app had 5+ streams for off premises courses. I nixed those for simplicity here
+		//There were originally 3 lecture rooms, plus workshop rooms, seminars off premises, and random hotel/govt conferences 
 
 		const stream_1 = document.getElementById('stream1').checked;
 		const stream_2 = document.getElementById('stream2').checked;
 		const stream_3 = document.getElementById('stream3').checked;
 		const number_of_streams = stream_1 + stream_2 + stream_3;
 
-		if (number_of_streams < 1) { return; }
+		if (number_of_streams < 1) {
+			return;
+		} //Draw nothing 
 
 		const calendar_gap = 6;	//An arbitrary height for the row to display the calendar dates
-
 		const number_of_quarters = 4;
 		const calendar_height = 96;
 		const stream_height = (calendar_height - (4 * calendar_gap)) / number_of_quarters / number_of_streams;
+		
+		draw_calendar(number_of_streams, calendar_height, calendar_gap, number_of_quarters, stream_height);		//Draw the calendar dates etc for the year
+		draw_slots(data, stream_1, stream_2, stream_3, number_of_streams, stream_height, calendar_gap);			//Draw the course details for the year
 
+		//TODO: bring back the tooltip and tally code
 
-		draw_calendar(number_of_streams, calendar_height, calendar_gap, number_of_quarters, stream_height);
+	}
 
+	function draw_slots(data, stream_1, stream_2, stream_3, number_of_streams, stream_height, calendar_gap) {
 
-		var all = '';
-		var current_slot = '';
-		var day_width = 1;
-		var one_day = 1000 * 60 * 60 * 24;
-		var screen_width = 91;
+		//Slots are courses for DIV purposes
 
+		//BUG: courses are drawn 3 days too late and 1 vh too low (origina at top-left)
+		//BUG: courses are drawn on same stream level regardless of actual stream > turns out theres code i forgot to copy over that takes care of that draw_level
+		//		I  omitted it thinking it was tooltip stuff
 
+		let all = '';
+		let current_slot = '';
+		const day_width = 1;
+		const one_day = 1000 * 60 * 60 * 24;	//javascript milliseconds of a day
+		const screen_width = 91;				//91 days per quarter, we don't care about the missing 1.25 days over the holidays
+		let draw_level = 0;
 
-
-		for (slot in data) {
+		for (let slot in data) {
 			//check is this slot in a visible stream
 			if (
 				(data[slot].stream == 1 && stream_1) ||
@@ -767,17 +777,23 @@
 			) {
 
 				if (data[slot].id != null) {
-					var date_start = new Date(data[slot].date_start);
-					var date_end = new Date(data[slot].date_end);	//need to take date_end+1
-					var day_diff = new Date(date_end - date_start);
-					var slot_width = Math.floor(day_diff / one_day) + 1;
-					var level = data[slot].stream - 1;	//not so simple, stream = lecture_room_id which is not linear; we need to assign these accurately
+
+					//BUG: draw_level is fine until stream 2 is toggled hidden. need logic to tally draw_level 
+					//There isn't a truth table logic for this, unfo. It needs a tally logic. Fix it later. It's ok for testing now
+					
+					draw_level = data[slot].stream - number_of_streams + 2;
+
+					const date_start = new Date(data[slot].date_start);
+					const date_end = new Date(data[slot].date_end);	//need to take date_end+1
+					const course_duration = new Date(date_end - date_start);
+					const slot_width = Math.floor(course_duration / one_day) + 1;
+					const level = data[slot].stream - 1;	//not so simple, stream = lecture_room_id which is not linear; we need to assign these accurately
 					if (level > 6) { level = 4; }	//account for odd indexing from sql of lecture_room_id table					
 
-					var jan1 = new Date('1 January ' + display_year);
-					day_diff = new Date(date_start - jan1);
-					var slot_x = Math.floor(day_diff / one_day);
-					var slot_y = ((number_of_streams - 1) * stream_height);
+					const jan1 = new Date('1 January ' + display_year);
+					const course_start_offset = new Date(date_start - jan1);
+					let slot_x = Math.floor(course_start_offset / one_day);
+					let slot_y = calendar_gap + (draw_level * stream_height);
 
 					//Calculate overshoot of right edge of calendar
 					if (slot_x + slot_width > (3 * screen_width)) {
@@ -794,21 +810,20 @@
 					}
 
 
-					var rotate = '';
+					const rotate = '';
 					if (slot_width < 4) { rotate = " rotate_text"; };
-					var font_size = 0.15 * slot_width;
+					const font_size = 0.15 * slot_width;
 
-
-					var current_slot = '<div class="course_slot' + '" style="' +
-						'font-size:' + font_size + 'em;' +
+					current_slot = '<div class="course_slot' + '" style="' +
+						'font-size:' + font_size + 'vh;' +
 						'width:calc(' + (slot_width * day_width) + 'vw);' +
 						'height:calc(' + stream_height + 'vh);' +
-						'left:calc(8vw + ' + slot_x + 'vw);' +
-						'top:calc(5vh + ' + slot_y + 'vh);' +
+						'left:calc(5vw + ' + slot_x + 'vw);' +
+						'top:calc(' + slot_y + 'vh);' +
 						'background-color:' + data[slot].background_main + ';' +
 						'color:' + data[slot].foreground + ';' +
 						'" data-myattribute="' + data[slot].id +
-						'"><div class="course_slot_inner' + rotate + '">' + data[slot].code + ' - ' + data[slot].po + '</div></div>';
+						'"><div class="course_slot_inner' + rotate + '">' + data[slot].code + ' <br> ' + data[slot].po + '</div></div>';
 
 					all += current_slot;
 				}
@@ -849,7 +864,6 @@
 		const first_quarter = 1, last_quarter = 4;
 
 		for (let i = first_quarter; i <= last_quarter; i++) {
-			
 
 			inner_calendar += '<div id="months_quarter_' + i + '" class="month_line" style="top:' + y_pos + 'vh;background:' + month_colour[i % 2] + '"></div>';
 
@@ -860,7 +874,6 @@
 			for (let j = 0; j < number_of_streams; j++) {
 				inner_calendar += '<div class="streams" style="top:' + ((calendar_gap + y_pos) + (stream_height * j)) + 'vh;height:' + stream_height + 'vh;"></div>';
 			}
-
 
 			y_pos += y_pos_increment;
 		}
@@ -877,10 +890,13 @@
 
 	}
 
-	function calculate_firstday(){
+	function calculate_firstday() {
 		const one_day = 1000 * 60 * 60 * 24; //Duration of a single day in javascript milliseconds
 
-		//We're trying to get the first Thursday of the year that has it's Monday in January as well. There'S a simpler way to do this I'm sure...
+		//We're trying to get the first Thursday of the year that has it's Monday in January as well. There's a simpler way to do this I'm sure...
+		//I can't remember why I needed to do this, but I definitely did, and really don't have the desire to figure out a better way just yet.
+		//I leave it as testimony for the necessity of writing readable code
+		//WISH: see if there is a simple way to do this
 		const jan_1st = new Date('1 January ' + display_year);
 		const jan_1st_day = jan_1st.getDay();
 		const days_difference = jan_1st - (6 * one_day) - (jan_1st_day * one_day);
@@ -949,20 +965,20 @@
 
 	}
 
-
-	function getMonthDate(d) {
-	var monthNames = [
-		"January", "February", "March",
-		"April", "May", "June", "July",
-		"August", "September", "October",
-		"November", "December"
-	];
-	var date = new Date(d);
-	var monthIndex = date.getMonth();
-	return monthNames[monthIndex];
-}
+	function get_pretty_month_name(d) {
+		const monthNames = [
+			"January", "February", "March",
+			"April", "May", "June", "July",
+			"August", "September", "October",
+			"November", "December"
+		];
+		const date = new Date(d);
+		const monthIndex = date.getMonth();
+		return monthNames[monthIndex];
+	}
 
 	function draw_dates_labels(date_holder) {
+		//Makes a heap of divs for month names, dates, etc and colours and texts them accordingly
 
 		const even_month_colour = "#ffeebb";
 		const odd_month_colour = "#ddccaa";
@@ -997,7 +1013,7 @@
 				wknd.className = "date_style weekend_class";
 				dates_q1.appendChild(wknd);
 			}
-			
+
 			const dc1 = document.createElement("div");
 			dc1.innerHTML = date_counter_q1.getDate();
 			dc1.className = "date_style" + weekend_style;
@@ -1033,7 +1049,7 @@
 			//check if date = 1 or 15 and draw the divider or month name respectively if somehow
 			if (date_counter_q1.getDate() == 15) {	//add month name
 				const month_name = document.createElement("div");
-				month_name.innerHTML = getMonthDate(date_counter_q1);
+				month_name.innerHTML = get_pretty_month_name(date_counter_q1);
 				month_name.className = "month_style";
 				month_name.style.cssText = "left:" + i + "vw;";
 				months_q1.appendChild(month_name);
@@ -1049,7 +1065,7 @@
 
 			if (date_counter_q2.getDate() == 15) {
 				const month_name = document.createElement("div");
-				month_name.innerHTML = getMonthDate(date_counter_q2);
+				month_name.innerHTML = get_pretty_month_name(date_counter_q2);
 				month_name.className = "month_style";
 				month_name.style.cssText = "left:" + i + "vw;";
 				months_q2.appendChild(month_name);
@@ -1066,7 +1082,7 @@
 
 			if (date_counter_q3.getDate() == 15) {
 				const month_name = document.createElement("div");
-				month_name.innerHTML = getMonthDate(date_counter_q3);
+				month_name.innerHTML = get_pretty_month_name(date_counter_q3);
 				month_name.className = "month_style";
 				month_name.style.cssText = "left:" + i + "vw;";
 				months_q3.appendChild(month_name);
@@ -1083,7 +1099,7 @@
 
 			if (date_counter_q4.getDate() == 15) {
 				const month_name = document.createElement("div");
-				month_name.innerHTML = getMonthDate(date_counter_q4);
+				month_name.innerHTML = get_pretty_month_name(date_counter_q4);
 				month_name.className = "month_style";
 				month_name.style.cssText = "left:" + i + "vw;";
 				months_q4.appendChild(month_name);
@@ -1108,45 +1124,5 @@
 
 	}
 
-
-	/*
-	
-			//Highlight today
-			//BUG: after 4pm(ish) it shows tomorrow instead
-			var screen_width = 91;
-			var today_date = new Date();
-			//console.log(today_date);
-			var today_offset = new Date(today_date - date_counter)
-			//console.log(today_offset);
-			var today_x = Math.round(today_offset / one_day);
-			//console.log(today_x);
-			var today_y = 0;
-			//Calculate overshoot of right edge of calendar
-			if (today_x >= (3 * screen_width)) {
-				today_x -= screen_width;
-				today_y += (stream_height * number_of_streams) + calendar_gap;
-			}
-			if (today_x >= (2 * screen_width)) {
-				today_x -= screen_width;
-				today_y += (stream_height * number_of_streams) + calendar_gap;
-			}
-			if (today_x >= (1 * screen_width)) {
-				today_x -= screen_width;
-				today_y += (stream_height * number_of_streams) + calendar_gap;
-			}
-			var today_el = document.createElement("div");
-			today_el.className = " dormant_highlight_today";
-			today_el.style.cssText = "position:absolute;left:" + today_x + "vw;top:" + today_y + "vh;width:1vw;height:" + (calendar_gap + (number_of_streams * stream_height)) + "vh;";
-	
-			document.getElementById('year').appendChild(today_el);
-	
-	
-	
-			var wks_q1, wks_q2, wks_q3, wks_q4;
-			for (var i = 1; i <= 13; i++) {
-	
-			}
-	
-			*/
 
 </script>

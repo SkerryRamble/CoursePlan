@@ -1,13 +1,13 @@
 [{
   "id": 1,
-  "date_start": "2022-01-03",
+  "date_start": "2022-01-10",
   "date_end": "2022-01-14",
   "setup_quiz": true,
   "stream": 1,
-  "background_main": "#f5f5f5",
-  "foreground": "#333333",
-  "code": "COURSE001",
-  "po": "PO001"
+  "background_main": "gold",
+  "foreground": "black",
+  "code": "22IM01",
+  "po": "Smith"
 },
 {
   "id": 2,
@@ -15,10 +15,10 @@
   "date_end": "2022-02-18",
   "setup_quiz": false,
   "stream": 2,
-  "background_main": "#e6e6e6",
-  "foreground": "#444444",
-  "code": "COURSE002",
-  "po": "PO002"
+  "background_main": "goldenrod",
+  "foreground": "black",
+  "code": "22JP01",
+  "po": "DuPont"
 },
 {
   "id": 3,
@@ -26,10 +26,10 @@
   "date_end": "2022-03-18",
   "setup_quiz": true,
   "stream": 3,
-  "background_main": "#d9d9d9",
-  "foreground": "#555555",
-  "code": "COURSE003",
-  "po": "PO003"
+  "background_main": "steelblue",
+  "foreground": "white",
+  "code": "22FR01",
+  "po": "Smith"
 },
 {
   "id": 4,
@@ -37,10 +37,10 @@
   "date_end": "2022-04-15",
   "setup_quiz": false,
   "stream": 1,
-  "background_main": "#f5f5f5",
-  "foreground": "#333333",
-  "code": "COURSE004",
-  "po": "PO004"
+  "background_main": "steelblue",
+  "foreground": "white",
+  "code": "22CD01",
+  "po": "DuPont"
 },
 {
   "id": 5,
@@ -48,10 +48,10 @@
   "date_end": "2022-05-13",
   "setup_quiz": true,
   "stream": 2,
-  "background_main": "#e6e6e6",
-  "foreground": "#444444",
-  "code": "COURSE005",
-  "po": "PO005"
+  "background_main": "gold",
+  "foreground": "black",
+  "code": "22ER45",
+  "po": "McTavish"
 },
 {
   "id": 6,
@@ -59,10 +59,10 @@
   "date_end": "2022-06-17",
   "setup_quiz": false,
   "stream": 3,
-  "background_main": "#d9d9d9",
-  "foreground": "#555555",
-  "code": "COURSE006",
-  "po": "PO006"
+  "background_main": "goldenrod",
+  "foreground": "black",
+  "code": "22EE01",
+  "po": "Perry"
 },
 {
   "id": 7,
@@ -70,10 +70,10 @@
   "date_end": "2022-07-15",
   "setup_quiz": true,
   "stream": 1,
-  "background_main": "#f5f5f5",
-  "foreground": "#333333",
-  "code": "COURSE007",
-  "po": "PO007"
+  "background_main": "steelblue",
+  "foreground": "white",
+  "code": "22IM01",
+  "po": "Perry"
 },
 {
   "id": 8,
@@ -81,10 +81,10 @@
   "date_end": "2022-08-12",
   "setup_quiz": false,
   "stream": 2,
-  "background_main": "#e6e6e6",
-  "foreground": "#444444",
-  "code": "COURSE008",
-  "po": "PO008"
+  "background_main": "gold",
+  "foreground": "black",
+  "code": "22RE05",
+  "po": "DuPont"
 },
 {
   "id": 9,
@@ -92,10 +92,10 @@
   "date_end": "2022-09-16",
   "setup_quiz": true,
   "stream": 3,
-  "background_main": "#d9d9d9",
-  "foreground": "#555555",
-  "code": "COURSE009",
-  "po": "PO009"
+  "background_main": "steelblue",
+  "foreground": "white",
+  "code": "22WE21",
+  "po": "Smith"
 },
 {
   "id": 10,
@@ -103,10 +103,10 @@
   "date_end": "2022-10-14",
   "setup_quiz": false,
   "stream": 1,
-  "background_main": "#f5f5f5",
-  "foreground": "#333333",
-  "code": "COURSE010",
-  "po": "PO010"
+  "background_main": "goldenrod",
+  "foreground": "black",
+  "code": "22PO09",
+  "po": "McTavish"
 },
 {
   "id": 11,
@@ -114,10 +114,10 @@
   "date_end": "2022-11-18",
   "setup_quiz": true,
   "stream": 2,
-  "background_main": "#e6e6e6",
-  "foreground": "#444444",
-  "code": "COURSE011",
-  "po": "PO011"
+  "background_main": "goldenrod",
+  "foreground": "black",
+  "code": "22CD23",
+  "po": "Smith"
 },
 {
   "id": 12,
@@ -125,9 +125,9 @@
   "date_end": "2022-12-16",
   "setup_quiz": false,
   "stream": 1,
-  "background_main": "#f5f5f5",
-  "foreground": "#333333",
-  "code": "COURSE012",
-  "po": "PO012"
+  "background_main": "steelblue",
+  "foreground": "white",
+  "code": "23xx01",
+  "po": "TBD"
 }
 ]
