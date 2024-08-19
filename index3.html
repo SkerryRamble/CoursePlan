@@ -161,15 +161,15 @@
 			border: 0.01vw solid black;
 			border-bottom: none;
 			/*covered by stream borders */
-			border-top: none;
-			/*covered by stream borders */
-			padding: 0px;
-			margin: 0px;
-			cursor: -webkit-zoom-in;
-			line-height: 3vh;
-		} */
+		border-top: none;
+		/*covered by stream borders */
+		padding: 0px;
+		margin: 0px;
+		cursor: -webkit-zoom-in;
+		line-height: 3vh;
+		}
 
-		.course_slot:hover {
+		*/ .course_slot:hover {
 			animation: zooming .2s;
 			animation-fill-mode: forwards;
 			z-index: 99;
@@ -625,6 +625,7 @@
 		150824: Fixed a bunch of things, but also saw a lot more that needs fixing, as is always the way.
 		Biggest fix was realising a lot of styling elements were being referenced but not defined > missing css page!
 		So I copy pasted my old work one. TODO, need to clean it out from stuff that's irrelevant, probably 80%+
+		190824: Reworked a lot of the draw slots code, cleaned it up and redesigned the positioning logic
 -->
 
 	<div>
@@ -662,15 +663,24 @@
 
 	/* TODO: things to be done, not bugs
 		BUG: identified problem needs to be fixed
-		WISH: isn'T broken but too badly written and should be fixed given time
+		WISH: isn't broken but too badly written and should be fixed given time
+		NOTE: Just something I found interesting or necessary to highlight
 	
-		TODO: general tidy up
+		TODO: search for TODOs within script
 		
 		BUGs: draw level for course streams is bonkers
 		i added courses for 2023 as well, but they are drawn in the wrong date slots. Picasso computer quote springs to mind
 		Whoops! I added them to the same file. I need to break them in to 2 files, one per year and bring back the api calls ability to handle that
 		Also, the first_day thing needs to be called by draw_slots. I forgot to add it there too.
 		Ah, the pitfalls of copy-paste
+
+		NOTE: After fixing the draw_slot function, it works decently now. There's always ways to improve things, and this is a far cry from the full functionality of the original.
+		But I don't want to spend ages recreating some mock data for that old app, so there's no point in recreating the old functionality for that (yet)
+		I'm happy with this for now, some things I might fix later are:
+		* visual flourishes here and there
+		* font choices
+		* button placing etc >> mostly aesthetic stuff
+		* Have a go at getting some AI bot to make mock data for me en masse. That'd be handy
 
 	*/
 
@@ -687,7 +697,7 @@
 		display_year = 2022; //temp.getFullYear();
 		draw_main();
 	}
-	
+
 	function draw_main() {
 		document.getElementById("displayed_year").innerHTML = display_year;
 		get_year();
@@ -710,7 +720,7 @@
 
 		//GET data from api
 		const request = new XMLHttpRequest();
-		request.open('GET', 'yearcourses_' + display_year + '.json', true);	//TODO: add display_year suffix
+		request.open('GET', 'yearcourses_' + display_year + '.json', true);
 
 		request.onload = function () {
 			if (this.status >= 200 && this.status < 400) {				// Success!
@@ -719,6 +729,7 @@
 			}
 			else {
 				alert("Failed to get data from the server. Probably a network hiccough, try again.");
+				//TODO: I'd rather the course schedule itself just had a stamp message like 'NO DATA' instead of forcing the user to acknowledge the network fail and click to proceed
 			}
 		};
 		request.onerror = function () {
@@ -745,15 +756,221 @@
 		const number_of_quarters = 4;
 		const calendar_height = 96;
 		const stream_height = (calendar_height - (4 * calendar_gap)) / number_of_quarters / number_of_streams;
-		
+
 		draw_calendar(number_of_streams, calendar_height, calendar_gap, number_of_quarters, stream_height);		//Draw the calendar dates etc for the year
 		draw_slots(data, stream_1, stream_2, stream_3, number_of_streams, stream_height, calendar_gap);			//Draw the course details for the year
 
-		//TODO: bring back the tooltip and tally code
-
 	}
 
+
 	function draw_slots(data, stream_1, stream_2, stream_3, number_of_streams, stream_height, calendar_gap) {
+
+		//This was designed to be printed out, so having the year at the bottom is handy
+		//There were never courses assigned over the holidays so no danger of obscuring info
+
+		//add the year text at the bottom right
+		const year_text = document.createElement("div");
+		year_text.innerHTML = display_year;
+		year_text.className = 'year_text_class';
+		document.getElementById('year').appendChild(year_text);
+
+		//Add print/creation date to the bottom too
+		const temp = new Date();
+		const created_text = document.createElement("div");
+		created_text.innerHTML = temp.toDateString() + ' ' + temp.toLocaleTimeString();
+		created_text.className = 'created_text_class';
+		document.getElementById('year').appendChild(created_text);
+
+		//Pop out if nothing to draw, no point wasting cycles
+		if (number_of_streams < 1) { return; }
+
+
+		const all = document.createElement("div");;
+		const current_slot = '';
+		const day_width = 1;
+		const screen_width = 91;
+		const menu_x_offset = 8;
+		const number_of_quarters = 4;
+
+		const one_day = 1000 * 60 * 60 * 24;	//javascript measures dates in milliseconds
+		const jan1 = new Date('1 January ' + display_year);
+		const j1 = jan1.getDay();
+		const dd = jan1 - (6 * one_day) - (j1 * one_day);
+		const year_first_day = new Date(dd);
+		const date_counter = year_first_day;
+		const mod_date = false;
+
+		// I saw this comment from some older code which sheds some light onto the reasoning for this
+		// Adjust the 'first' day of the year to conform to our wishes; it can be as far back as Dec 28th or
+		// as late as Jan 3. Outside those bounds we shift the date 1 week accordingly
+		if (year_first_day.getDate() > 16 && year_first_day.getDate() < 27) {
+			date_counter.setDate(date_counter.getDate() + 7);
+		}
+		if (year_first_day.getDate() < 15 && year_first_day.getDate() > 2) {
+			date_counter.setDate(date_counter.getDate() - 7);
+		}
+
+
+		for (let slot in data) {
+
+			//We need to track the visibility of the streams from the UI toggles, they'll affect the slot heights and other spacing
+			//It's a simple accumulator idea
+			let draw_level = 0;
+			let draw_me = false;
+
+			if (data[slot].stream == 1 && stream_1) {
+				draw_me = true;
+				draw_level = 0;
+			}
+
+			if (data[slot].stream == 2 && stream_2) {
+				draw_me = true;
+				if (stream_1) { draw_level += 1; }
+				else { draw_level = 0; }
+			}
+
+			if (data[slot].stream == 3 && stream_3) {
+				draw_me = true;
+				if (stream_1) { draw_level += 1; }
+				if (stream_2) { draw_level += 1; }
+				if (!stream_1 && !stream_2) { draw_level = 0; }
+			}
+
+
+			if (draw_me) {
+				const date_start = new Date(data[slot].date_start);
+				const date_end = new Date(data[slot].date_end);
+				const course_days = new Date(date_end - date_start);
+				let slot_width = Math.round(course_days / one_day) + 1;
+
+				const slot_x_offset = new Date(date_start - date_counter);
+				let slot_x = Math.round(slot_x_offset / one_day);
+				let slot_y = calendar_gap + (draw_level * stream_height);
+
+				const special_comment = document.createElement("div");
+				const tally_text = document.createElement("div");
+				const shared_tally_text = document.createElement("div");
+
+				//Add a hover-tooltip with some extra info
+				const tooltip_text = data[slot].code + '\x0A' + data[slot].po + '\x0APassword: ' + data[slot].s_password + '\x0AQuiz: ' + data[slot].setup_quiz;	// \x0A = newline character
+
+				//Calculate overshoot of right edge of calendar
+				if (slot_x >= (3 * screen_width)) {
+					slot_x -= screen_width;
+					slot_y += (stream_height * number_of_streams) + calendar_gap;
+				}
+				if (slot_x >= (2 * screen_width)) {
+					slot_x -= screen_width;
+					slot_y += (stream_height * number_of_streams) + calendar_gap;
+				}
+				if (slot_x >= (1 * screen_width)) {
+					slot_x -= screen_width;
+					slot_y += (stream_height * number_of_streams) + calendar_gap;
+				}
+
+				//overlap check. Some courses spanned several weeks and visually would overshoot the end of a quarter
+				let overlap = 0;
+				if (slot_x + slot_width >= screen_width) {
+					overlap = (slot_x + slot_width) - screen_width;
+					slot_width = screen_width - slot_x;
+				}
+
+				//font_size multiplier should be 'lines of text / stream height in vh
+
+				//course_info text components
+				const lines_of_text = 4;//default for normal sizes/styles of course_slot_inner
+
+				const po_text = data[slot].po;
+				const code_text = data[slot].code;
+				const rotate = '';	//Some 1 day courses needed their info rotated ertically to fit in
+				let class_list = 'course_slot';
+				const box_height = stream_height;
+
+				const info_text = '</li><li class="schedule_li">' + code_text + '</li><li class="po schedule_li">' + po_text + '</li>';
+
+				//Short courses= less space to display info
+				if (slot_width == 1) { info_text = '<li class="schedule_li po" style="margin-top:' + (stream_height / 2 - 1) + 'vh;">' + po_text + '</li>'; rotate = ' rotate_text'; class_list += ' rotate_slot_detected'; lines_of_text = 1; box_height = slot_width; }
+
+				if (slot_width > 1 && slot_width < 5) { lines_of_text = 4; class_list += ' rotate_slot_detected'; }
+
+				let font_size_multiplier = slot_width / lines_of_text;//?? probably better to go uniform
+
+				if (font_size_multiplier > 1.5) { font_size_multiplier = 1.5; }	//Math.ceiling?? whatever...
+				if (font_size_multiplier < 1) { font_size_multiplier = 1; }
+
+				//NOTE: the original course schedule had a plethora of visual info, with icons and colours signifying data. I used a class list to control most of these.
+				//These below do nothing, but I've kept them here in case I feel like bringin back the detail intense version someday
+				//set up a string class_list to hold all the applicable css style classes for this course_slot
+				if (data[slot].accommodation == 'Residence') { class_list += ' dormant_highlight_residence'; }
+				if (data[slot].cost_shared == true) { class_list += ' dormant_highlight_shared_costs'; }
+				if (data[slot].extra_language_id == 2) { class_list += ' dormant_highlight_interpretation'; }
+
+				const background_colour = data[slot].background_main;
+
+				background_style = 'background:' + background_colour + ';';
+
+				const course_inner_text = document.createElement("div");
+				course_inner_text.style.cssText = "overflow:hidden;height:calc(" + stream_height + "vh - 1px);";
+				const course_inner_list = document.createElement("ul");
+				course_inner_list.style.cssText = "list-style-type:none;"
+				course_inner_list.className = 'schedule_ul ' + rotate;	//rotate's text 90deg if necc.
+				course_inner_list.innerHTML = info_text;
+				course_inner_text.appendChild(course_inner_list);
+
+				let overlap_offset = 0;
+				//draw the overlapped part, one quarter lower
+				if (overlap > 0) {
+					overlap_offset = 1;
+					const new_slot_y = slot_y + (stream_height * number_of_streams) + calendar_gap;
+					const overlap_slot = document.createElement("div");
+					overlap_slot.title = tooltip_text;
+					overlap_slot.className = class_list + ' overlap_leading_edge';			//This leading edge class makes little 'tear strips' appear
+					overlap_slot.style.cssText = 'font-size:' + (font_size_multiplier * 0.8) + 'vh;' +
+						'line-height:' + font_size_multiplier + 'vh;' +
+						'width:calc(' + (overlap * day_width) + 'vw);' +
+						'height:calc(' + stream_height + 'vh - 1px);' +
+						'left:calc(' + 0 + 'vw);' +
+						'top:calc(' + new_slot_y + 'vh + 1px);' +
+						background_style +
+						'color:' + data[slot].foreground + ';';
+					overlap_slot.setAttribute('course_id', data[slot].id);
+					overlap_slot.setAttribute('course_code', data[slot].code);
+
+					const temp_el_1 = course_inner_text.cloneNode(true);
+					overlap_slot.appendChild(temp_el_1);
+					const temp_el_2 = tally_text.cloneNode(true);
+					overlap_slot.appendChild(temp_el_2);
+
+					all.appendChild(overlap_slot);
+					class_list += ' overlap_trailing_edge';		//Like the leading edge, this makes little 'tear strips' appear like you'd see on a stamp
+				}
+
+				const current_slot = document.createElement("div");
+				current_slot.appendChild(course_inner_text);
+				current_slot.title = tooltip_text;
+				current_slot.className = class_list;
+				current_slot.style.cssText = 'font-size:' + (font_size_multiplier * 0.8) + 'vh;' +
+					'line-height:' + font_size_multiplier + 'vh;' +
+					'width:calc(' + ((slot_width - overlap_offset) * day_width) + 'vw);' +
+					'height:calc(' + stream_height + 'vh - 1px);' +
+					'left:calc(' + slot_x + 'vw);' +
+					'top:calc(' + slot_y + 'vh + 1px);' +
+					background_style +
+					'color:' + data[slot].foreground + ';';
+				current_slot.setAttribute('course_id', data[slot].id);
+				current_slot.setAttribute('course_code', data[slot].code);
+
+				all.appendChild(current_slot);
+			}
+		}
+
+		document.getElementById('year').appendChild(all);
+	}
+
+
+	function draw_slots_temp(data, stream_1, stream_2, stream_3, number_of_streams, stream_height, calendar_gap) {
+
+		//This is defunct, just keeping it for posterity to see how silly ideas can be fixed with effort
 
 		//Slots are courses for DIV purposes
 
@@ -766,7 +983,6 @@
 		const day_width = 1;
 		const one_day = 1000 * 60 * 60 * 24;	//javascript milliseconds of a day
 		const screen_width = 91;				//91 days per quarter, we don't care about the missing 1.25 days over the holidays
-		let draw_level = 0;
 
 		for (let slot in data) {
 			//check is this slot in a visible stream
@@ -780,7 +996,7 @@
 
 					//BUG: draw_level is fine until stream 2 is toggled hidden. need logic to tally draw_level 
 					//There isn't a truth table logic for this, unfo. It needs a tally logic. Fix it later. It's ok for testing now
-					
+
 					draw_level = data[slot].stream - number_of_streams + 2;
 
 					const date_start = new Date(data[slot].date_start);
